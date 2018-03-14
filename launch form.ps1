@@ -2,7 +2,6 @@
 	Launch Form
 ################################>
 
-
 <#
 	Show "Exchange Manager" launch panel form
 #>
@@ -20,79 +19,9 @@ function Show-launchForm {
 
 		if ($_.KeyCode -eq "Enter") {
 
-			if ($NewUser.Checked) {
+			 Handle-Options
 
-				$new = $True;
-				$title = $title_newuser
-
-			} else {
-
-				$new = $False
-
-			}
-
-			if ($NewContact.Checked) {
-
-				$contact = $True;
-				$title = $title_newcontact
-
-			} else {
-
-				$contact = $False
-
-			}
-
-			if ($DisableUser.Checked) {
-
-				$disable = $True;
-				$title = $title_disableuser
-
-			} else {
-
-				$disable = $False
-
-			}
-
-			if ($ExistUser.Checked) {
-
-				$title = $title_existinguser
-
-			}
-
-			$found = $False
-			if ($contact) {
-
-				ShowForm5
-
-			} elseif ($NewDG.Checked -or $ExistGroup.Checked) {
-
-				if ($NewDG.Checked) {
-
-					$newgroup = $True;
-					$title = $title_newdg
-
-				} else {
-
-					$newgroup = $False;
-					$title = $title_existingdg
-
-				}
-
-				ShowForm3
-
-			} else {
-
-				ShowForm1
-
-			}
-
-		}
-
-	})
-
-	$launchForm.Add_KeyDown({
-
-		if ($_.KeyCode -eq "Escape") {
+		} elseif ($_.KeyCode -eq "Escape") {
 
 			$launchForm.close()
 
@@ -106,82 +35,9 @@ function Show-launchForm {
 	$nextButton = Config-Button -horizontalPosition 280 -verticalPosition 520 -width 75 -height 23 -text "Next >" -tabIndex 7
 	$nextButton.Add_Click({
 
-		if ($NewUser.Checked) {
-
-			$new = $True;
-			$title = $title_newuser
-
-		} else {
-
-			$new = $False
-
-		}
-
-		if ($NewContact.Checked) {
-
-			$contact = $True;
-			$title = $title_newcontact
-
-		} else {
-
-			$contact = $False
-
-		}
-
-		if ($DisableUser.Checked) {
-
-			$disable = $True;
-			$title = $title_disableuser
-
-		} else {
-
-			$disable = $False
-
-		}
-
-		if ($ExistUser.Checked) {
-
-			$title = $title_existinguser
-
-		}
-
-		$found = $False
-
-		if ($contact) {
-
-			ShowForm5
-
-		} elseif ($NewDG.Checked -or $ExistGroup.Checked) {
-
-			if ($NewDG.Checked) {
-
-				$newgroup = $True;
-				$title = $title_newdg
-
-			} else {
-
-				$newgroup = $False;
-				$title = $title_existingdg
-
-			}
-
-			ShowForm3
-
-		} elseif ($NewMembership.Checked) {
-
-			$Form.close()
-			ShowFormMembership
-			#Invoke-Expression C:\Users\rayj\Desktop\List_Import.ps1   #Call the other script from main method
-			#Invoke-Item (start powershell ("C:\Users\rayj\Desktop\List_Import.ps1"))
-
-		} else {
-
-			ShowForm1
-
-		}
+		 Handle-Options
 
 	})
-
 	$launchForm.Controls.Add($NextButton)
 
 	<#
@@ -285,6 +141,84 @@ function Show-launchForm {
 	[void]$launchForm.ShowDialog()
 
 	return $launchForm
+
+}
+
+function Handle-Options {
+
+	if ($newMailboxRadioButton.Checked) {
+
+		$new = $True;
+		$title = $title_newuser
+
+	} else {
+
+		$new = $False
+
+	}
+	
+	if ($mailboxForExistingUserRadioButton.Checked) {
+
+		$title = $title_existinguser
+
+	}
+	
+	if ($disableUserRadioButton.Checked) {
+
+		$disable = $True;
+		$title = $title_disableuser
+
+	} else {
+
+		$disable = $False
+
+	}
+
+	if ($newMailContactRadioButton.Checked) {
+
+		$contact = $True;
+		$title = $title_newcontact
+
+	} else {
+
+		$contact = $False
+
+	}
+
+	$found = $False
+
+	if ($contact) {
+
+		ShowForm5
+
+	} elseif ($newDistributionGroupRadioButton.Checked -or $distributionGroupForExistingGroupRadioButton.Checked) {
+
+		if ($newDistributionGroupRadioButton.Checked) {
+
+			$newgroup = $True
+			$title = $title_newdg
+
+		} else {
+
+			$newgroup = $False
+			$title = $title_existingdg
+
+		}
+
+		ShowForm3
+
+	} elseif ($newMembershipRadioButton.Checked) {
+
+		$Form.close()
+		ShowFormMembership
+		#Invoke-Expression C:\Users\rayj\Desktop\List_Import.ps1   #Call the other script from main method
+		#Invoke-Item (start powershell ("C:\Users\rayj\Desktop\List_Import.ps1"))
+
+	} else {
+
+		ShowForm1
+
+	}
 
 }
 

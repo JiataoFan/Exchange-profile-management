@@ -49,8 +49,21 @@
 # 8.Change the default company from "Ma Labs" to "malabs"
 # 9.Change the DC to "MA Labs" during the step 10  
 
+
+<##############################
+	Library files
+################################>
+
 . ".\launch form.ps1"
 
+[void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+[void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+[void][reflection.assembly]::LoadWithPartialName("'Microsoft.VisualBasic")
+
+
+<##############################
+	Configurations
+################################>
 
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
 
@@ -90,9 +103,8 @@ $context = New-Object System.DirectoryServices.ActiveDirectory.DirectoryContext 
 $domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetDomain($context)
 $root = $domain.psbase.GetDirectoryEntry()
 
-[void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-[void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
-[void][reflection.assembly]::LoadWithPartialName("'Microsoft.VisualBasic")
+
+
 
 function ToProperCase ([string]$name) {
 
