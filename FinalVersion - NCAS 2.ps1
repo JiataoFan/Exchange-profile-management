@@ -49,6 +49,9 @@
 # 8.Change the default company from "Ma Labs" to "malabs"
 # 9.Change the DC to "MA Labs" during the step 10  
 
+. ".\launch form.ps1"
+
+
 if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
 
 	Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs; exit
@@ -97,7 +100,7 @@ function ToProperCase ([string]$name) {
 
 }
 
-function IsMember ([string]$company,[string]$sam) {
+function IsMember ([string]$company, [string]$sam) {
 
 	if (Get-DistributionGroupMember $company | Where-Object { $_.SamAccountName -eq $sam }) { $True } else { $False }
 
@@ -2694,386 +2697,11 @@ function Build-TreeView {
 ################################>
 
 <#
-	Close form
-#>
-function CloseForm {
-
-	$Form.close()
-
-}
-
-<#
-	Show "Exchange Manager" launch panel form
-#>
-function ShowForm {
-
-	<#
-		Config launch panel form and handle default press-key behaviors
-	#>
-	$Form = New-Object System.Windows.Forms.Form
-	$Form.Text = $title
-	$Form.Size = New-Object System.Drawing.Size (500, 610)
-	$Form.StartPosition = "CenterScreen"
-	$Form.KeyPreview = $True
-	$Form.Add_KeyDown({
-
-		if ($_.KeyCode -eq "Enter") {
-
-			if ($NewUser.Checked) {
-
-				$new = $True;
-				$title = $title_newuser
-
-			} else {
-
-				$new = $False
-
-			}
-
-			if ($NewContact.Checked) {
-
-				$contact = $True;
-				$title = $title_newcontact
-
-			} else {
-
-				$contact = $False
-
-			}
-
-			if ($DisableUser.Checked) {
-
-				$disable = $True;
-				$title = $title_disableuser
-
-			} else {
-
-				$disable = $False
-
-			}
-
-			if ($ExistUser.Checked) {
-
-				$title = $title_existinguser
-
-			}
-
-			$found = $False
-			if ($contact) {
-
-				ShowForm5
-
-			} elseif ($NewDG.Checked -or $ExistGroup.Checked) {
-
-				if ($NewDG.Checked) {
-
-					$newgroup = $True;
-					$title = $title_newdg
-
-				} else {
-
-					$newgroup = $False;
-					$title = $title_existingdg
-
-				}
-
-				ShowForm3
-
-			} else {
-
-				ShowForm1
-
-			}
-
-		}
-
-	})
-
-	$Form.Add_KeyDown({
-
-		if ($_.KeyCode -eq "Escape") {
-
-			$Form.close()
-
-		}
-
-	})
-
-	<#
-		Config "Next" button and its behaviors
-	#>
-	$NextButton = New-Object System.Windows.Forms.Button
-	$NextButton.Location = New-Object System.Drawing.Size (280, 520)
-	$NextButton.Size = New-Object System.Drawing.Size (75, 23)
-	$NextButton.Text = "Next >"
-	$NextButton.TabIndex = 7
-	$NextButton.Add_Click({
-
-		if ($NewUser.Checked) {
-
-			$new = $True;
-			$title = $title_newuser
-
-		} else {
-
-			$new = $False
-
-		}
-
-		if ($NewContact.Checked) {
-
-			$contact = $True;
-			$title = $title_newcontact
-
-		} else {
-
-			$contact = $False
-
-		}
-
-		if ($DisableUser.Checked) {
-
-			$disable = $True;
-			$title = $title_disableuser
-
-		} else {
-
-			$disable = $False
-
-		}
-
-		if ($ExistUser.Checked) {
-
-			$title = $title_existinguser
-
-		}
-
-		$found = $False
-
-		if ($contact) {
-
-			ShowForm5
-
-		} elseif ($NewDG.Checked -or $ExistGroup.Checked) {
-
-			if ($NewDG.Checked) {
-
-				$newgroup = $True;
-				$title = $title_newdg
-
-			} else {
-
-				$newgroup = $False;
-				$title = $title_existingdg
-
-			}
-
-			ShowForm3
-
-		} elseif ($NewMembership.Checked) {
-
-			$Form.close()
-			ShowFormMembership
-			#Invoke-Expression C:\Users\rayj\Desktop\List_Import.ps1   #Call the other script from main method
-			#Invoke-Item (start powershell ("C:\Users\rayj\Desktop\List_Import.ps1"))
-
-		} else {
-
-			ShowForm1
-
-		}
-
-	})
-
-	$Form.Controls.Add($NextButton)
-
-	<#
-		Config "Cancel" button and its behaviors
-	#>
-	$CancelButton = New-Object System.Windows.Forms.Button
-	$CancelButton.Location = New-Object System.Drawing.Size (365, 520)
-	$CancelButton.Size = New-Object System.Drawing.Size (75, 23)
-	$CancelButton.Text = "Cancel"
-	$CancelButton.TabIndex = 8
-	$CancelButton.Add_Click({ 
-
-		$Form.close() 
-
-	})
-	$Form.Controls.Add($CancelButton)
-
-	<#
-		Config "Error message" box
-	#>
-	$ErrorMsg = New-Object System.Windows.Forms.Label
-	$ErrorMsg.Location = New-Object System.Drawing.Size (20, 10)
-	$ErrorMsg.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg.Text = $null
-	$ErrorMsg.ForeColor = "Red"
-	$Form.Controls.Add($ErrorMsg)
-
-	<#
-		Config title label
-	#>
-	$TitleLabel = New-Object System.Windows.Forms.Label
-	$TitleLabel.Location = New-Object System.Drawing.Size (20, 40)
-	$TitleLabel.Size = New-Object System.Drawing.Size (450, 20)
-	$TitleLabel.Text = "$Forest"
-	#$TitleLabel.Font = New-Object System.Drawing.Font("Calibri", 15.75, ([System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold -bor [System.Drawing.FontStyle]::Italic)), [System.Drawing.GraphicsUnit]::Point, ([System.Byte](0)))
-	$TitleLabel.Font = New-Object System.Drawing.Font ("Arial", 8, ([System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold)), [System.Drawing.GraphicsUnit]::Point, ([System.Byte](0)))
-	$Form.Controls.Add($TitleLabel)
-
-	<# 
-		Config "Create a new mailbox" radio button
-	#>
-	$NewUser = New-Object System.Windows.Forms.RadioButton
-	$NewUser.Location = New-Object System.Drawing.Size (40, 100)
-	$NewUser.Size = New-Object System.Drawing.Size (200, 20)
-	if ($NewUser.Checked) {
-
-		$NewUser.Check = $True
-
-	}
-	$NewUser.TabIndex = 1
-	$NewUser.TabStop = $True
-	$NewUser.Text = "Create a new mailbox"
-	$NewUser.Checked = $True
-	$Form.Controls.Add($NewUser)
-
-	<#
-		Config "Create mailbox for an existing user" radio button
-	#>
-	$ExistUser = New-Object System.Windows.Forms.RadioButton
-	$ExistUser.Location = New-Object System.Drawing.Size (40, 120)
-	$ExistUser.Size = New-Object System.Drawing.Size (200, 20)
-	$ExistUser.Text = "Create mailbox for an existing user"
-	$ExistUser.TabIndex = 2
-	if ($ExistUser.Checked) {
-
-		$ExistUser.Check = $True
-
-	}
-	$Form.Controls.Add($ExistUser)
-
-	<# 
-		"Disable user" radio button
-	#>
-	$DisableUser = New-Object System.Windows.Forms.RadioButton
-	$DisableUser.Location = New-Object System.Drawing.Size (40, 140)
-	$DisableUser.Size = New-Object System.Drawing.Size (200, 20)
-	$DisableUser.Text = "Disable user"
-	$DisableUser.TabIndex = 3
-	if ($DisableUser.Checked) {
-
-		$DisableUser.Check = $True
-
-	}
-	$Form.Controls.Add($DisableUser)
-
-	<#
-		"Create a new distribution group" Radio Button
-	#>
-	$NewDG = New-Object System.Windows.Forms.RadioButton
-	$NewDG.Location = New-Object System.Drawing.Size (40, 230)
-	$NewDG.Size = New-Object System.Drawing.Size (200, 20)
-	$NewDG.Text = "Create a new distribution group"
-	$NewDG.TabIndex = 4
-	$NewDG.TabStop = $True
-	$Form.Controls.Add($NewDG)
-
-	<#
-		"Create distribution group for an existing group" Radio Button
-	#>
-	$ExistGroup = New-Object System.Windows.Forms.RadioButton
-	$ExistGroup.Location = New-Object System.Drawing.Size (40, 250)
-	$ExistGroup.Size = New-Object System.Drawing.Size (300, 20)
-	$ExistGroup.Text = "Create distribution group for an existing group"
-	$ExistGroup.TabIndex = 5
-	$ExistGroup.TabStop = $True
-	$Form.Controls.Add($ExistGroup)
-
-	<# 
-		"Create a new mail contact" Radio Button
-	#>
-	$NewContact = New-Object System.Windows.Forms.RadioButton
-	$NewContact.Location = New-Object System.Drawing.Size (40, 340)
-	$NewContact.Size = New-Object System.Drawing.Size (200, 20)
-	$NewContact.Text = "Create a new mail contact"
-	$NewContact.TabIndex = 6
-	$NewContact.TabStop = $True
-	$Form.Controls.Add($NewContact)
-
-	<#
-		"Add a new membership" radio Button
-	#>
-	$NewMembership = New-Object System.Windows.Forms.RadioButton
-	$NewMembership.Location = New-Object System.Drawing.Size (40, 440)
-	$NewMembership.Size = New-Object System.Drawing.Size (200, 20)
-	$NewMembership.Text = "Add a new membership"
-	$NewMembership.TabIndex = 7
-	$NewMembership.TabStop = $True
-	$Form.Controls.Add($NewMembership)
-
-	<#
-		"Mailbox" group box
-	#>
-	$MailboxGroupbox = New-Object System.Windows.Forms.GroupBox
-	$MailboxGroupbox.Location = New-Object System.Drawing.Size (20, 70)
-	$MailboxGroupbox.Size = New-Object System.Drawing.Size (420, 110)
-	$MailboxGroupbox.Text = "Mailbox"
-	$Form.Controls.Add($MailboxGroupbox)
-
-	<#
-		"Distribution Group" group box
-	#>
-	$DGGroupbox = New-Object System.Windows.Forms.GroupBox
-	$DGGroupbox.Location = New-Object System.Drawing.Size (20, 200)
-	$DGGroupbox.Size = New-Object System.Drawing.Size (420, 90)
-	$DGGroupbox.Text = "Distribution Group"
-	$Form.Controls.Add($DGGroupbox)
-
-	<#
-		"Contact" group box
-	#>
-	$ContactGroupbox = New-Object System.Windows.Forms.GroupBox
-	$ContactGroupbox.Location = New-Object System.Drawing.Size (20, 310)
-	$ContactGroupbox.Size = New-Object System.Drawing.Size (420, 70)
-	$ContactGroupbox.Text = "Mail Contact"
-	$Form.Controls.Add($ContactGroupbox)
-
-	<#
-		"Add Group Membership" group box (DFS and VASTO)
-	#>
-	$MemberGroupbox = New-Object System.Windows.Forms.GroupBox
-	$MemberGroupbox.Location = New-Object System.Drawing.Size (20, 410)
-	$MemberGroupbox.Size = New-Object System.Drawing.Size (420, 70)
-	$MemberGroupbox.Text = "Add Group Membership"
-	$Form.Controls.Add($MemberGroupbox)
-
-	$Form.Topmost = $True
-	$Form.Add_Shown({
-
-		$Form.Activate() 
-
-	})
-	[void]$Form.ShowDialog()
-
-}
-
-<#
-	Config a label
-#>
-function Config-Label () {
-
-
-}
-
-<#
 	Mailbox form
 #>
 function ShowForm1 {
 
-	$Form.visible = $False
+	$launchForm.visible = $False
 
 	$Form1 = New-Object System.Windows.Forms.Form
 	$Form1.Text = $title
@@ -3261,7 +2889,7 @@ function ShowForm1 {
 
 			}
 
-		#}
+		}
 
 	})
 
@@ -3520,7 +3148,7 @@ function ShowForm1 {
 	$BackButton.TabIndex = 19
 	$BackButton.Add_Click({
 
-		$Form1.visible = $False; $Form.visible = $True
+		$Form1.visible = $False; $launchForm.visible = $True
 
 	})
 	$Form1.Controls.Add($BackButton)
@@ -4996,7 +4624,7 @@ function ShowForm2 {
 
 				$Form1.close(); 
 				$Form2.close(); 
-				$Form.visible = $True
+				$launchForm.visible = $True
 
 			}
 
@@ -5008,7 +4636,7 @@ function ShowForm2 {
 
 		if ($_.KeyCode -eq "Escape") {
 
-			$Form.close();
+			$launchForm.close();
 			$Form1.close();
 			$Form2.close()
 		
@@ -5063,7 +4691,7 @@ function ShowForm2 {
 	$CancelButton2.TabIndex = 3
 	$CancelButton2.Add_Click({
 
-		$Form.close();
+		$launchForm.close();
 		$Form1.close();
 		$Form2.close()
 
@@ -5081,7 +4709,7 @@ function ShowForm2 {
 
 		if ($disable) {
 
-			$Form.visible = $True
+			$launchForm.visible = $True
 
 		} else {
 
@@ -5104,7 +4732,7 @@ function ShowForm2 {
 			Start-Sleep -s 1
 			$Form1.close();
 			$Form2.close();
-			$Form.visible = $True
+			$launchForm.visible = $True
 
 	})
 	$Form2.Controls.Add($FinishButton2)
@@ -5609,7 +5237,7 @@ function ShowForm2 {
 ################################################################################
 function ShowForm3 {
 
-	$Form.visible = $False
+	$launchForm.visible = $False
 
 	$Form3 = New-Object System.Windows.Forms.Form
 	$Form3.Text = $title
@@ -5713,7 +5341,7 @@ function ShowForm3 {
 	$BackButton3.Size = New-Object System.Drawing.Size (75,23)
 	$BackButton3.Text = "< Back"
 	$BackButton3.TabIndex = 9
-	$BackButton3.Add_Click({ $Form3.visible = $False; $Form.visible = $True })
+	$BackButton3.Add_Click({ $Form3.visible = $False; $launchForm.visible = $True })
 	$Form3.Controls.Add($BackButton3)
 
 	# Error Message Box
@@ -5926,7 +5554,7 @@ function ShowForm4 {
 
 				$Form3.close();
 				$Form4.close();
-				$Form.visible = $True
+				$launchForm.visible = $True
 				
 			}
 
@@ -5959,7 +5587,7 @@ function ShowForm4 {
 	$FinishButton4.Text = "Finish"
 	$FinishButton4.TabIndex = 2
 	$FinishButton4.visible = $False
-	$FinishButton4.Add_Click({ $Form3.close(); $Form4.close(); $Form.visible = $True })
+	$FinishButton4.Add_Click({ $Form3.close(); $Form4.close(); $launchForm.visible = $True })
 	$Form4.Controls.Add($FinishButton4)
 
 	$CancelButton4 = New-Object System.Windows.Forms.Button
@@ -6065,7 +5693,7 @@ function ShowForm4 {
 ################################################################################
 function ShowForm5
 {
-	$Form.visible = $False
+	$launchForm.visible = $False
 
 	$Form5 = New-Object System.Windows.Forms.Form
 	$Form5.Text = $title
@@ -6122,7 +5750,7 @@ function ShowForm5
 	$BackButton.Size = New-Object System.Drawing.Size (75,23)
 	$BackButton.Text = "< Back"
 	$BackButton.TabIndex = 12
-	$BackButton.Add_Click({ $Form5.visible = $False; $Form.visible = $True })
+	$BackButton.Add_Click({ $Form5.visible = $False; $launchForm.visible = $True })
 	$Form5.Controls.Add($BackButton)
 
 	# Error Message Box
@@ -6420,9 +6048,9 @@ function ShowForm6
 					$logfile = $UserAlias + "-created.log"
 					CreateContact
 				}
-				if ($FinishButton.visible) { $Form5.close(); $Form6.close(); $Form.visible = $True }
+				if ($FinishButton.visible) { $Form5.close(); $Form6.close(); $launchForm.visible = $True }
 			} })
-	$Form6.Add_KeyDown({ if ($_.KeyCode -eq "Escape") { $Form.close(); $Form5.close(); $Form6.close() } })
+	$Form6.Add_KeyDown({ if ($_.KeyCode -eq "Escape") { $launchForm.close(); $Form5.close(); $Form6.close() } })
 
 	if ($UserExtension) { $UserExtension = "x" + $UserExtension }
 
@@ -6442,7 +6070,7 @@ function ShowForm6
 	$CancelButton.Size = New-Object System.Drawing.Size (75,23)
 	$CancelButton.Text = "Cancel"
 	$CancelButton.TabIndex = 3
-	$CancelButton.Add_Click({ $Form.close(); $Form5.close(); $Form6.close() })
+	$CancelButton.Add_Click({ $launchForm.close(); $Form5.close(); $Form6.close() })
 	$Form6.Controls.Add($CancelButton)
 
 	$BackButton = New-Object System.Windows.Forms.Button
@@ -6459,7 +6087,7 @@ function ShowForm6
 	$FinishButton.Text = "Finish"
 	$FinishButton.TabIndex = 1
 	$FinishButton.visible = $False
-	$FinishButton.Add_Click({ $Form5.close(); $Form6.close(); $Form.visible = $True })
+	$FinishButton.Add_Click({ $Form5.close(); $Form6.close(); $launchForm.visible = $True })
 	$Form6.Controls.Add($FinishButton)
 
 	# Error Message Box
@@ -6579,18 +6207,18 @@ function ShowForm6
 function ShowFormMembership
 {
 
-	$Form = New-Object System.Windows.Forms.Form
-	$Form.Text = "Test"
-	$Form.Size = New-Object System.Drawing.Size (1000,950)
-	$Form.StartPosition = "CenterScreen"
-	$Form.Topmost = $True
+	$launchForm = New-Object System.Windows.Forms.Form
+	$launchForm.Text = "Test"
+	$launchForm.Size = New-Object System.Drawing.Size (1000,950)
+	$launchForm.StartPosition = "CenterScreen"
+	$launchForm.Topmost = $True
 
 	# The Name label
 	$CompanyLabel = New-Object System.Windows.Forms.Label
 	$CompanyLabel.Location = New-Object System.Drawing.Size (95,63)
 	$CompanyLabel.Size = New-Object System.Drawing.Size (100,20)
 	$CompanyLabel.Text = "Company/Office: "
-	$Form.Controls.Add($CompanyLabel)
+	$launchForm.Controls.Add($CompanyLabel)
 
 	# Need two more section
 
@@ -6599,14 +6227,14 @@ function ShowFormMembership
 	$NameLabel.Location = New-Object System.Drawing.Size (95,83)
 	$NameLabel.Size = New-Object System.Drawing.Size (40,20)
 	$NameLabel.Text = "Name: "
-	$Form.Controls.Add($NameLabel)
+	$launchForm.Controls.Add($NameLabel)
 
 	# The form label
 	$DisableNameLabel = New-Object System.Windows.Forms.Label
 	$DisableNameLabel.Location = New-Object System.Drawing.Size (95,213)
 	$DisableNameLabel.Size = New-Object System.Drawing.Size (40,20)
 	$DisableNameLabel.Text = "Alias: "
-	$Form.Controls.Add($DisableNameLabel)
+	$launchForm.Controls.Add($DisableNameLabel)
 
 	# Logon Name Text Box
 	$DisableName = New-Object System.Windows.Forms.TextBox
@@ -6616,7 +6244,7 @@ function ShowFormMembership
 	$DisableName.AutoCompleteMode = 'SuggestAppend'
 	$DisableName.AutoCompleteCustomSource = $autocomplete
 	Get-User | ForEach-Object { $DisableName.AutoCompleteCustomSource.Add($_.SamAccountName) }
-	$Form.Controls.Add($DisableName)
+	$launchForm.Controls.Add($DisableName)
 
 	# The Detail Information table
 	$dataGridView1 = New-Object System.Windows.Forms.DataGridView
@@ -6628,7 +6256,7 @@ function ShowFormMembership
 	$dataGridView1.ReadOnly = $True
 	$dataGridView1.TabIndex = 3
 	$dataGridView1.AllowUserToAddRows = $False
-	$Form.Controls.Add($dataGridView1)
+	$launchForm.Controls.Add($dataGridView1)
 
 	# Error Message Box
 	$ErrorMsg = New-Object System.Windows.Forms.Label
@@ -6636,7 +6264,7 @@ function ShowFormMembership
 	$ErrorMsg.Size = New-Object System.Drawing.Size (500,20)
 	$ErrorMsg.Text = $null
 	$ErrorMsg.ForeColor = "Red"
-	$Form.Controls.Add($ErrorMsg)
+	$launchForm.Controls.Add($ErrorMsg)
 
 	# The data grid for the user information
 	$dataGridView1.ColumnCount = 4
@@ -6711,9 +6339,9 @@ function ShowFormMembership
 				$RemoveButton.Enabled = $False
 			}
 
-			$Form.Refresh()
+			$launchForm.Refresh()
 		})
-	$Form.Controls.Add($AddButton)
+	$launchForm.Controls.Add($AddButton)
 
 	# Add the function to remove the user account
 	$RemoveButton = New-Object System.Windows.Forms.Button
@@ -6748,10 +6376,10 @@ function ShowFormMembership
 
 			}
 
-			$Form.Refresh()
+			$launchForm.Refresh()
 		})
 
-	$Form.Controls.Add($RemoveButton)
+	$launchForm.Controls.Add($RemoveButton)
 
 
 	$BrowseButton = New-Object System.Windows.Forms.Button
@@ -6784,7 +6412,7 @@ function ShowFormMembership
 			}
 		})
 
-	$Form.Controls.Add($BrowseButton)
+	$launchForm.Controls.Add($BrowseButton)
 
 	$ImportButton = New-Object System.Windows.Forms.Button
 	$ImportButton.Location = New-Object System.Drawing.Size (575,210)
@@ -6817,11 +6445,11 @@ function ShowFormMembership
 				$RemoveButton.Enabled = $False
 			}
 
-			$Form.Refresh()
+			$launchForm.Refresh()
 		})
 
 	#Move User to Selected Group
-	$Form.Controls.Add($ImportButton)
+	$launchForm.Controls.Add($ImportButton)
 
 	$label1 = New-Object System.Windows.Forms.Label
 	$label1.Location = New-Object System.Drawing.Size (95,655)
@@ -6829,7 +6457,7 @@ function ShowFormMembership
 	$label1.Text = "Selected OU: "
 	$label1.Font = New-Object System.Drawing.Font ("Arial",8,([System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold)),[System.Drawing.GraphicsUnit]::Point,([System.Byte](0)))
 	$label1.TabStop = $False
-	$Form.Controls.Add($label1)
+	$launchForm.Controls.Add($label1)
 
 	$label2 = New-Object System.Windows.Forms.Label
 	$label2.Location = New-Object System.Drawing.Size (95,655)
@@ -6837,7 +6465,7 @@ function ShowFormMembership
 	$label2.Text = "Group: "
 	$label2.Font = New-Object System.Drawing.Font ("Arial",8,([System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold)),[System.Drawing.GraphicsUnit]::Point,([System.Byte](0)))
 	$label2.TabStop = $False
-	$Form.Controls.Add($label2)
+	$launchForm.Controls.Add($label2)
 
 	$Group = New-Object System.Windows.Forms.ComboBox
 	$Group.Location = New-Object System.Drawing.Size (185,650)
@@ -6861,7 +6489,7 @@ function ShowFormMembership
 			}
 
 		})
-	$Form.Controls.Add($Group)
+	$launchForm.Controls.Add($Group)
 
 	$objListbox = New-Object System.Windows.Forms.Listbox
 	$objListbox.Location = New-Object System.Drawing.Size (185,675)
@@ -6870,7 +6498,7 @@ function ShowFormMembership
 	$objListbox.Height = 200
 	$objListbox.Width = 140
 	$objListbox.HorizontalScrollbar = $True
-	$Form.Controls.Add($objListbox)
+	$launchForm.Controls.Add($objListbox)
 
 	function Check-IsGroupMember {
 		param($user,$grp)
@@ -6904,7 +6532,7 @@ function ShowFormMembership
 
 		})
 
-	$Form.Controls.Add($MoveButton)
+	$launchForm.Controls.Add($MoveButton)
 
 	$MoveAllButton = New-Object System.Windows.Forms.Button
 	$MoveAllButton.Location = New-Object System.Drawing.Size (680,650)
@@ -6924,15 +6552,15 @@ function ShowFormMembership
 
 		})
 
-	$Form.Controls.Add($MoveAllButton)
+	$launchForm.Controls.Add($MoveAllButton)
 
 	$CancelButton2 = New-Object System.Windows.Forms.Button
 	$CancelButton2.Location = New-Object System.Drawing.Size (765,650)
 	$CancelButton2.Size = New-Object System.Drawing.Size (75,23)
 	$CancelButton2.Text = "Cancel"
 	$CancelButton2.TabIndex = 3
-	$CancelButton2.Add_Click({ $Form.close(); $Form7.close() })
-	$Form.Controls.Add($CancelButton2)
+	$CancelButton2.Add_Click({ $launchForm.close(); $Form7.close() })
+	$launchForm.Controls.Add($CancelButton2)
 
 	#The disable buttons for disable the users on the list
 
@@ -6954,7 +6582,7 @@ function ShowFormMembership
 
 		})
 
-	$Form.Controls.Add($DisableButton)
+	$launchForm.Controls.Add($DisableButton)
 
 	#The diasble all buttons for disable all the users who append in the datagridview 
 	$DisableAllButton = New-Object System.windows.Forms.Button
@@ -6976,11 +6604,11 @@ function ShowFormMembership
 
 	})
 
-	$Form.Controls.Add($DisableAllButton)
+	$launchForm.Controls.Add($DisableAllButton)
 
-	$Form.Add_Shown({
+	$launchForm.Add_Shown({
 
-		$Form.Activate()
+		$launchForm.Activate()
 
 	})
 	[void]$Form.ShowDialog()
@@ -6990,7 +6618,7 @@ function ShowFormMembership
 #The process status window console
 function ShowFormMembership1 {
 
-	$Form.visible = $True
+	$launchForm.visible = $True
 	$Form1 = New-Object System.Windows.Forms.Form
 	$Form1.Text = "Process Status"
 	$Form1.Size = New-Object System.Drawing.Size (900,410)
@@ -7014,7 +6642,7 @@ function ShowFormMembership1 {
 	$FinishButton.visible = $False
 	$FinishButton.Add_Click({
 
-		$Form.Refresh()
+		$launchForm.Refresh()
 		Start-Sleep -s 1
 		$Form1.close()
 
@@ -7171,7 +6799,7 @@ function ShowFormMembership1 {
 
 function ShowFormMembership2 {
 
-	$Form.visible = $True
+	$launchForm.visible = $True
 	$Form2 = New-Object System.Windows.Forms.Form
 	$Form2.Text = "Process Status"
 	$Form2.Size = New-Object System.Drawing.Size (900, 410)
@@ -7190,7 +6818,7 @@ function ShowFormMembership2 {
 	$FinishButton.Text = "Finish"
 	$FinishButton.visible = $False
 	$FinishButton.Add_Click({
-			$Form.Refresh()
+			$launchForm.Refresh()
 			Start-Sleep -s 1
 			$Form2.close() })
 	$Form2.Controls.Add($FinishButton)
@@ -7334,4 +6962,4 @@ function ShowFormMembership2 {
 }
 
 Write-Host "This window will close when the Powershell script exits."
-ShowForm
+$launchForm = Show-LaunchForm
