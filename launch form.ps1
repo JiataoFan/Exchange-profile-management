@@ -62,7 +62,7 @@ function Show-launchForm {
 	<#
 		Config title label
 	#>
-	$titleLabel = Config-Label -horizontalPosition 20 -verticalPosition 40 -width 450 -height 20 -text "$Forest"
+	$titleLabel = Config-Label -horizontalPosition 20 -verticalPosition 40 -width 450 -height 20 -text "$Forest" -fontFamily "Calibri" -fontSize 15.75 -fontStyle ([System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold -bor [System.Drawing.FontStyle]::Italic))
 	$launchForm.Controls.Add($titleLabel)
 
 	<# 
@@ -111,25 +111,25 @@ function Show-launchForm {
 	<#
 		"Mailbox" group box
 	#>
-	$mailboxGroupbox = Config-Box -horizontalPosition 20 -verticalPosition 70 -width 420 -height 110 -text "Mailbox"
+	$mailboxGroupbox = Config-GroupBox -horizontalPosition 20 -verticalPosition 70 -width 420 -height 110 -text "Mailbox"
 	$launchForm.Controls.Add($mailboxGroupbox)
 
 	<#
 		"Distribution Group" group box
 	#>
-	$distributionGroupGroupBox = Config-Box -horizontalPosition 20 -verticalPosition 200 -width 420 -height 90 -text "Distribution Group"
+	$distributionGroupGroupBox = Config-GroupBox -horizontalPosition 20 -verticalPosition 200 -width 420 -height 90 -text "Distribution Group"
 	$launchForm.Controls.Add($distributionGroupGroupBox)
 
 	<#
 		"Contact" group box
 	#>
-	$mailContactGroupBox = Config-Box -horizontalPosition 20 -verticalPosition 310 -width 420 -height 70 -text "Mail Contact"
+	$mailContactGroupBox = Config-GroupBox -horizontalPosition 20 -verticalPosition 310 -width 420 -height 70 -text "Mail Contact"
 	$launchForm.Controls.Add($mailContactGroupBox)
 
 	<#
 		"Add Group Membership" group box (DFS and VASTO)
 	#>
-	$addGroupMemberShipBox = Config-Box -horizontalPosition 20 -verticalPosition 410 -width 420 -height 70 -text "Add Group Membership"
+	$addGroupMemberShipBox = Config-GroupBox -horizontalPosition 20 -verticalPosition 410 -width 420 -height 70 -text "Add Group Membership"
 	$launchForm.Controls.Add($addGroupMemberShipBox)
 
 	#$launchForm.Topmost = $True
@@ -165,7 +165,7 @@ function Handle-Options {
 	
 	if ($disableUserRadioButton.Checked) {
 
-		$disable = $True;
+		$disable = $True
 		$title = $title_disableuser
 
 	} else {
@@ -216,92 +216,8 @@ function Handle-Options {
 
 	} else {
 
-		ShowForm1
+		ShowForm1 -new $new -title $title -disable $disable -found $found
 
 	}
-
-}
-
-<#
-	Config button
-#>
-function Config-Button {
-
-	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [string]$text, [int]$tabIndex)
-
-	$button = New-Object System.Windows.Forms.Button
-	$button.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
-	$button.Size = New-Object System.Drawing.Size ($width, $height)
-	$button.Text = $text
-	$button.TabIndex = $tabIndex
-
-	return $button
-
-}
-
-<#
-	Config a error message
-#>
-function Config-ErrorMessage {
-
-	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height)
-
-	$errorMessageBox = New-Object System.Windows.Forms.Label
-	$errorMessageBox.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
-	$errorMessageBox.Size = New-Object System.Drawing.Size ($width, $height)
-	$errorMessageBox.ForeColor = "Red"
-
-	return $errorMessageBox;
-
-}
-
-<#
-	Config a label
-#>
-function Config-Label {
-
-	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [string]$text)
-
-	$label = New-Object System.Windows.Forms.Label
-	$label.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
-	$label.Size = New-Object System.Drawing.Size ($width, $height)
-	$label.Text = "$Forest"
-	$label.Font = New-Object System.Drawing.Font("Calibri", 15.75, ([System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold -bor [System.Drawing.FontStyle]::Italic)), [System.Drawing.GraphicsUnit]::Point)
-
-	return $label
-
-}
-
-<#
-	Config group box
-#>
-function Config-Box {
-
-	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [string]$text)
-
-	$box = New-Object System.Windows.Forms.GroupBox
-	$box.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
-	$box.Size = New-Object System.Drawing.Size ($width, $height)
-	$box.Text = [string]$text
-
-	return $box
-
-}
-
-<#
-	Config radio button
-#>
-function Config-RadioButton {
-
-	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height,  [string]$text, [int]$tabIndex)
-
-	$radioButton = New-Object System.Windows.Forms.RadioButton
-	$radioButton.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
-	$radioButton.Size = New-Object System.Drawing.Size ($width, $height)
-	$radioButton.Text = $text
-	$radioButton.TabIndex = $tabIndex
-	$radioButton.TabStop = $true
-
-	return $radioButton
 
 }
