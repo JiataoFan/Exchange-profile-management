@@ -216,7 +216,7 @@ function Handle-Options {
 
 	} else {
 
-		ShowForm1 -new $new -title $title -disable $disable -found $found
+		Show-MailboxForm -title $title -new $new -disable $disable -found $found
 
 	}
 

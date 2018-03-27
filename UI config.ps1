@@ -1,4 +1,22 @@
 <#
+	Config form window
+#>
+function Config-Form {
+
+	param([int]$width, [int]$height, [string]$text, [string]$windowState, [string]$startPosition, [bool]$keyPreview)
+
+	$form = New-Object System.Windows.Forms.Form
+	$form.Size = New-Object System.Drawing.Size ($width, $height)
+	$form.Text = $text
+	$form.WindowState = $windowState
+	$form.StartPosition = $startPosition
+	$form.KeyPreview = $keyPreview
+
+	return $form
+
+}
+
+<#
 	Config button
 #>
 function Config-Button {
@@ -79,5 +97,66 @@ function Config-RadioButton {
 	$radioButton.TabStop = $true
 
 	return $radioButton
+
+}
+
+<#
+	Config text box
+#>
+function Config-TextBox {
+
+	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [int]$tabIndex, [int]$maxLength = 40)
+
+	$textBox = New-Object System.Windows.Forms.TextBox
+	$textBox.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
+	$textBox.Size = New-Object System.Drawing.Size ($width, $height)
+	$textBox.TabIndex = $tabIndex
+	$textBox.MaxLength = $maxLength
+
+	return $textBox
+
+}
+
+<#
+	Config combo box
+#>
+function Config-ComboBox {
+
+	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height)
+
+	$comboBox = New-Object System.Windows.Forms.ComboBox
+	$comboBox.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
+	$comboBox.Size = New-Object System.Drawing.Size ($width, $height)
+
+	return $comboBox
+
+}
+
+function Config-CheckedListbox {
+
+	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [bool]$checkOnClick = $False, [bool]$horizontalScrollbar = $False, $enabled = $True)
+
+	$checkedListBox = New-Object System.Windows.Forms.CheckedListbox
+	$checkedListBox.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
+	$checkedListBox.Size = New-Object System.Drawing.Size ($width, $height)
+	$checkedListBox.CheckOnClick = $checkOnClick
+	$checkedListBox.HorizontalScrollbar = $horizontalScrollbar
+	$checkedListBox.Enabled = $enabled
+
+	return $checkedListBox
+
+}
+
+function Config-CheckBox {
+
+	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [int]$tabIndex, [bool]$enabled = $Tru
+
+	$checkBox = New-Object System.Windows.Forms.CheckBox
+	$checkBox.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
+	$checkBox.Size = New-Object System.Drawing.Size ($width, $height)
+	$checkBox.TabIndex = $tabIndex
+	$checkBox.Enabled = $enabled
+
+	return $checkBox
 
 }

@@ -57,6 +57,7 @@
 . ".\launch form.ps1"
 . ".\new mailbox form.ps1"
 . ".\UI config.ps1"
+. ".\tree view.ps1"
 
 
 [void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
@@ -106,9 +107,6 @@ $context = New-Object System.DirectoryServices.ActiveDirectory.DirectoryContext 
 $domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetDomain($context)
 $root = $domain.psbase.GetDirectoryEntry()
 
-
-
-
 function ToProperCase ([string]$name) {
 
 	(Get-Culture).TextInfo.ToTitleCase($name)
@@ -130,60 +128,54 @@ function ValidateEmailAddress {
 
 function Autofill {
 
-	############## $new ?
-	if ($new -and $UserName.Text -ne "" -and $OU.Text -ne "" -and $MainCompany -ne "" -and $Office -ne "") {
+	if ($new -and $firstNameLastNameTextBox.Text -ne "" -and $organizationalUnitComboBox.Text -ne "" -and $companyComboBox -ne "" -and $officeComboBox -ne "") {
 
 		if (Validate-Fullname) {
 
-			$LogonName.Enabled = $True
-			#$Domain.Enabled = $True
-			$Password.Enabled = $True
-			$Server.Enabled = $True
+			$userLogonNameTextBox.Enabled = $True
+			#$domainComboBox.Enabled = $True
+			$passwordTextBox.Enabled = $True
+			$serverComboBox.Enabled = $True
 
 
-			$MB.Enabled = $True
-			$Email.Enabled = $True
-			#$EmailDomain.Enabled = $True
-			$DG.Enabled = $True
-			#$Phone.Enabled = $True
-			$Extension.Enabled = $True
-			$OWA.Enabled = $True
-			$ActiveSync.Enabled = $True
-			$objListbox_DFS.Enabled = $True
-			$objListbox_fileshare.Enabled = $True
-			$objListbox_WebsenseDept.Enabled = $True
-			$objListbox_WebsenseList.Enabled = $True
+			$databaseCheckedList.Enabled = $True
+			$emailTextBox.Enabled = $True
+			#$emailDomainComboBox.Enabled = $True
+			$distributionGroupCheckedListBox.Enabled = $True
+			#$phoneTextBox.Enabled = $True
+			$extensionTextBox.Enabled = $True
+			$OWACheckBox.Enabled = $True
+			$activeSyncCheckBox.Enabled = $True
+			$DFSCheckedListBox.Enabled = $True
+			$fileShareCheckedListBox.Enabled = $True
+			$websenseDepartmentCheckedListBox.Enabled = $True
+			$websenseUserDefineCheckedListBox.Enabled = $True
 
 			$UserName.Text = $UserFirst.substring(0, 1).ToUpper() + $UserFirst.substring(1).ToLower() + " " + $UserLast.substring(0,1).ToUpper() + $UserLast.substring(1).ToLower()
-			#$Lastname.Text = $UserLast.substring(0, 1).toupper() + $UserLast.substring(1).tolower()
 
-			$DG.Items.Clear()
-			$objListbox_DFS.Items.Clear()
-			$objListbox_fileshare.Items.Clear()
-			$objListbox_WebsenseDept.Items.Clear()
-			$objListbox_WebsenseList.Items.Clear()
-			$MainCompanyName = $MainCompany.SelectedItem.ToString()
-			$Officename = $Office.SelectedItem.ToString()
-			$DepartmentName = $Department.SelectedItem.ToString()
+			$distributionGroupCheckedListBox.Items.Clear()
+			$DFSCheckedListBox.Items.Clear()
+			$fileShareCheckedListBox.Items.Clear()
+			$websenseDepartmentCheckedListBox.Items.Clear()
+			$websenseUserDefineCheckedListBox.Items.Clear()
 
-			##################pmgroup? 
-			if ($Pmgroup.visible -eq $false) {
+			$MainCompanyName = $companyComboBox.SelectedItem.ToString()
+			$Officename = $officeComboBox.SelectedItem.ToString()
+			$DepartmentName = $departmentComboBox.SelectedItem.ToString()
 
-			} else {
+			if ($PMGroupComboBox.visible -eq $True) {
 
-				if ($Pmgroup.SelectedItem -eq $null) {
+				if ($PMGroupComboBox.SelectedItem -eq $null) {
 
 					$PmgroupName = ''
 
 				} else {
 
-					$PmgroupName = $Pmgroup.SelectedItem.ToString()
+					$PmgroupName = $PMGroupComboBox.SelectedItem.ToString()
 
 				}
 
 			}
-
-			#Network drive adding
 
 			#The group filtering of NDFS server
 			$DFShash = @{
@@ -255,13 +247,13 @@ function Autofill {
 
 					if ($_.properties.info -like "*$Keyword*") {
 
-						[void]$objListbox_DFS.Items.Add("$SecurityGroupName")
+						[void]$DFSCheckedListBox.Items.Add("$SecurityGroupName")
 
 					}
 
-					for ($i = 0; $i -lt $objListbox_DFS.Items.Count; $i++) {
+					for ($i = 0; $i -lt $DFSCheckedListBox.Items.Count; $i++) {
 
-						$objListbox_DFS.SetItemChecked($i,$true)
+						$DFSCheckedListBox.SetItemChecked($i,$true)
 
 					}
 
@@ -309,13 +301,13 @@ function Autofill {
 					$SecurityGroupName = $_.properties.Name
 					if ($_.properties.info -like "*$Keyword*") {
 
-						[void]$objListbox_fileshare.Items.Add("$SecurityGroupName")
+						[void]$fileShareCheckedListBox.Items.Add("$SecurityGroupName")
 
 					}
 
-					for ($i = 0; $i -lt $objListbox_fileshare.Items.Count; $i++) {
+					for ($i = 0; $i -lt $fileShareCheckedListBox.Items.Count; $i++) {
 
-						$objListbox_fileshare.SetItemChecked($i,$true)
+						$fileShareCheckedListBox.SetItemChecked($i,$true)
 
 					}
 
@@ -376,8 +368,8 @@ function Autofill {
 
 			}
 
-			$searcher_G = New-Object system.directoryservices.directorysearcher;
-			$grp_G = New-Object system.directoryservices.directoryentry;
+			$searcher_G = New-Object system.directoryservices.directorysearcher
+			$grp_G = New-Object system.directoryservices.directoryentry
 			$PathDirection1 = "OU=Department,OU=Groups,DC=malabs,DC=com"
 			$root_G = [adsi]("LDAP://" + $PathDirection1)
 			$searcher_G.SearchRoot = $root_G
@@ -395,13 +387,13 @@ function Autofill {
 
 					if ($_.properties.info -like "*$Keyword*") {
 
-						[void]$objListbox_WebsenseDept.Items.Add("$SecurityGroupName")
+						[void]$websenseDepartmentCheckedListBox.Items.Add("$SecurityGroupName")
 
 					}
 
-					for ($i = 0; $i -lt $objListbox_WebsenseDept.Items.Count; $i++) {
+					for ($i = 0; $i -lt $websenseDepartmentCheckedListBox.Items.Count; $i++) {
 
-						$objListbox_WebsenseDept.SetItemChecked($i,$true)
+						$websenseDepartmentCheckedListBox.SetItemChecked($i, $true)
 
 					}
 
@@ -444,13 +436,13 @@ function Autofill {
 					$SecurityGroupName = $_.properties.Name
 					if ($_.properties.info -like "*$Keyword*") {
 
-						[void]$objListbox_WebsenseList.Items.Add("$SecurityGroupName")
+						[void]$websenseUserDefineCheckedListBox.Items.Add("$SecurityGroupName")
 
 					}
 
-					for ($i = 0; $i -lt $objListbox_WebsenseList.Items.Count; $i++) {
+					for ($i = 0; $i -lt $websenseUserDefineCheckedListBox.Items.Count; $i++) {
 
-						$objListbox_WebsenseList.SetItemChecked($i,$true)
+						$websenseUserDefineCheckedListBox.SetItemChecked($i,$true)
 
 					}
 
@@ -458,7 +450,7 @@ function Autofill {
 
 			}
 
-			$DG.Items.Clear()
+			$distributionGroupCheckedListBox.Items.Clear()
 
 			Get-DistributionGroup -Filter "(CustomAttribute1 -eq '$MainCompanyName' -and CustomAttribute4 -eq '$Officename' -and CustomAttribute5 -like '*Office*')
 			-or (CustomAttribute2 -eq '$MainCompanyName' -and CustomAttribute4 -eq '$Officename' -and CustomAttribute5 -like '*Office*')
@@ -467,7 +459,7 @@ function Autofill {
 			-or (CustomAttribute2 -eq '$MainCompanyName' -and CustomAttribute4 -like '*$Officename*' -and CustomAttribute5 -like '*<$DepartmentName>*')
 			-or (CustomAttribute3 -eq '$MainCompanyName' -and CustomAttribute4 -like '*$Officename*' -and CustomAttribute5 -like '*<$DepartmentName>*')" | ForEach-Object {
 
-				[void]$DG.Items.Add($_.Name)
+				[void]$distributionGroupCheckedListBox.Items.Add($_.Name)
 
 			}
 
@@ -961,9 +953,9 @@ function Autofill {
 
 			}
 
-			for ($i = 0; $i -lt $DG.Items.Count; $i++) {
+			for ($i = 0; $i -lt $distributionGroupCheckedListBox.Items.Count; $i++) {
 
-				$DG.SetItemChecked($i, $true)
+				$distributionGroupCheckedListBox.SetItemChecked($i, $true)
 
 			}
 
@@ -1378,7 +1370,7 @@ function ValidateGroup {
 
 		} else {
 
-			$OUMsg.Text = "*";
+			$OUMsg.Text = "*"
 			$Error = $True
 
 		}
@@ -2615,110 +2607,12 @@ function Add-Group {
 
 }
 
-<##############################
-	Tree view
-################################>
-function Add-Node {
-
-	param($selectedNode, $name)
-
-	$newNode = New-Object System.Windows.Forms.TreeNode
-	$newNode.Name = $name
-	$newNode.Text = $name
-	$selectedNode.Nodes.Add($newNode) | Out-Null
-
-	return $newNode
-
-}
-
-function Get-NextLevel {
-
-	param($selectedNode, $dn)
-
-	$path = [adsi]("LDAP://" + $dn)
-	$OU = New-Object System.DirectoryServices.DirectorySearcher ($path)
-	$OU.SearchScope = "onelevel"
-	$OU.Filter = "(&(objectClass=organizationalUnit))"
-	$OUs = $OU.FindAll()
-
-	if ($OUs -eq $null) {
-
-		$node = Add-Node $selectedNode $path
-
-	} else {
-
-		foreach ($person in $OUs) {
-
-			[string]$ent = $person.properties.Name
-			$node = Add-Node $selectedNode $ent
-			[string]$dn = $person.properties.distinguishedname
-			Get-NextLevel $node $dn
-
-		}
-
-	}
-
-}
-
-function Build-TreeView {
-
-	if ($treeNodes) {
-
-		$treeview1.Nodes.Remove($treeNodes)
-		$form1.Refresh()
-
-	}
-
-	$treeNodes = New-Object System.Windows.Forms.TreeNode
-	$treeNodes.Text = "Active Directory Hierarchy"
-	$treeNodes.Name = "Active Directory Hierarchy"
-	$treeNodes.Tag = "root"
-	$treeView1.Nodes.Add($treeNodes) | Out-Null
-
-	if ($new) {
-
-		$treeView1.add_AfterSelect({
-
-				[string]$fullpath = $this.SelectedNode.FullPath
-				if ($fullpath -eq "Active Directory Hierarchy") {
-
-					$ldappath = ""
-
-				} else {
-
-					[string]$ldappath = $fullpath.substring($fullpath.IndexOf("\"), $fullpath.Length - $fullpath.IndexOf("\"))
-					$ldappath = $ldappath.Replace('\', '/')
-					$textbox1.Text = $ldappath
-					[void]$OU.Items.Add("$ldappath")
-					$OU.Text = $ldappath
-					$Office.Items.Clear()
-					$MainCompany.SelectedIndex = 0
-
-				}
-
-			})
-
-	}
-
-	#Generate Module nodes 
-	$OUs = Get-NextLevel $treeNodes $strDomainDN
-
-	$treeNodes.Expand()
-
-}
-
-<##############################
-	Form
-################################>
-
-
-
 ################################################################################
 # Form 2
 ################################################################################
 function ShowForm2 {
 
-	$Form1.visible = $False
+	$newMailBoxForm.visible = $False
 
 	$Form2 = New-Object System.Windows.Forms.Form
 	$Form2.Text = $title
@@ -2747,8 +2641,8 @@ function ShowForm2 {
 
 			if ($FinishButton2.visible) {
 
-				$Form1.close(); 
-				$Form2.close(); 
+				$newMailBoxForm.close()
+				$Form2.close()
 				$launchForm.visible = $True
 
 			}
@@ -2762,7 +2656,7 @@ function ShowForm2 {
 		if ($_.KeyCode -eq "Escape") {
 
 			$launchForm.close();
-			$Form1.close();
+			$newMailBoxForm.close();
 			$Form2.close()
 		
 		}
@@ -2817,7 +2711,7 @@ function ShowForm2 {
 	$CancelButton2.Add_Click({
 
 		$launchForm.close();
-		$Form1.close();
+		$newMailBoxForm.close();
 		$Form2.close()
 
 	})
@@ -2838,7 +2732,7 @@ function ShowForm2 {
 
 		} else {
 
-			$Form1.visible = $True
+			$newMailBoxForm.visible = $True
 
 		}
 
@@ -2855,7 +2749,7 @@ function ShowForm2 {
 
 			$Form2.Refresh()
 			Start-Sleep -s 1
-			$Form1.close();
+			$newMailBoxForm.close();
 			$Form2.close();
 			$launchForm.visible = $True
 
