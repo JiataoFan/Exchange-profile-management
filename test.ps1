@@ -16,22 +16,24 @@ $keyPress = [System.Windows.Forms.KeyEventHandler]{
 
 $form.add_keydown($keyPress)
 
-$form.ShowDialog()
 
 
-function Config-Label {
+function Config-ComboBox {
 
-	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [string]$text, [string]$fontFamily, [int]$fontSize, [System.Drawing.FontStyle]$fontStyle)
+	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height)
 
-	$label = New-Object System.Windows.Forms.Label
-	$label.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
-	$label.Size = New-Object System.Drawing.Size ($width, $height)
-	$label.Text = $text
-	$label.Font = New-Object System.Drawing.Font()
+	$comboBox = New-Object System.Windows.Forms.ComboBox
+	$comboBox.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
+	$comboBox.Size = New-Object System.Drawing.Size ($width, $height)
+	$comboBox.Items.AddRange(("asdf", "aaaaaaaaaaaaaaaa"))
 
-	return $label
+	return $comboBox
 
 }
 
 
-$label = Config-Label 10 10 10 10
+$comboBox = Config-ComboBox 10 10 100 100
+
+$form.Controls.Add($comboBox)
+
+$form.ShowDialog()

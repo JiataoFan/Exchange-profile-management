@@ -55,7 +55,7 @@
 ################################>
 
 . ".\launch form.ps1"
-. ".\new mailbox form.ps1"
+. ".\mailbox form.ps1"
 . ".\UI config.ps1"
 . ".\tree view.ps1"
 
@@ -1512,12 +1512,12 @@ function CreateMailbox {
 	}
 
 	# Hide buttons
-	$BackButton2.Enabled = $False
-	$CancelButton2.Enabled = $False
-	$OKButton2.Enabled = $False
+	$backButton.Enabled = $False
+	$cancelButton.Enabled = $False
+	$OKButton.Enabled = $False
 
 	# 1 of 10, creating mailbox
-	$ErrorMsg2.Text = "[1/10] Creating mailbox `"$UserAlias`"...please wait."
+	$errorMessage1.Text = "[1/10] Creating mailbox `"$UserAlias`"...please wait."
 	$Form2.Refresh()
 	if ($new) {
 
@@ -1557,7 +1557,7 @@ function CreateMailbox {
 
 		}
 
-		$ErrorMsg3.Text = "[2/10] Setting $customattr attribute to `"$UserCompany`"."
+		$errorMessage2.Text = "[2/10] Setting $customattr attribute to `"$UserCompany`"."
 		$Form2.Refresh()
 		switch ($UserDomain) {
 
@@ -1589,7 +1589,7 @@ function CreateMailbox {
 		Start-Sleep -s 1
 
 		# 3 of 10, setting msExchUseOAB
-		$ErrorMsg4.Text = "[3/10] Setting offline address book to `"$UserCompany OAB`"."
+		$errorMessage3.Text = "[3/10] Setting offline address book to `"$UserCompany OAB`"."
 		$Form2.Refresh()
 		Set-Mailbox $userAlias -offlineaddressbook "$userCompany OAB" -domaincontroller $DC
 		"" >> $log
@@ -1597,7 +1597,7 @@ function CreateMailbox {
 		Start-Sleep -s 1
 
 		# 4 of 10, disabling mailbox features
-		$ErrorMsg5.Text = "[4/10] Disabling mailbox features."
+		$errorMessage4.Text = "[4/10] Disabling mailbox features."
 		$Form2.Refresh()
 		$BlockOutlookAnywhere = !$UserOutlookAnywhere
 		Set-CASMailbox -Identity "$NTDomain\$UserAlias" -ActiveSyncEnabled $UserActiveSync -OWAEnabled $UserOWA -MAPIBlockOutlookRpcHttp $BlockOutlookAnywhere -domaincontroller $DC
@@ -1606,7 +1606,7 @@ function CreateMailbox {
 		Start-Sleep -s 1
 
 		# 5 of 10, setting Organization and Phone
-		$ErrorMsg6.Text = "[5/10] Setting Organization and Phone."
+		$errorMessage5.Text = "[5/10] Setting Organization and Phone."
 		$Form2.Refresh()
 		Set-User $UserAlias -Company "$UserCompany" -Phone ("$UserPhone $UserExtension".Trim()) -Office "$UserOffice" -domaincontroller $DC
 		"" >> $log
@@ -1616,14 +1616,14 @@ function CreateMailbox {
 		# 6 of 10, adding user to company
 		if (IsMember "$UserCompany Company" $UserAlias) {
 
-			$ErrorMsg7.ForeColor = "Red"
-			$ErrorMsg7.Text = "[6/10] WARNING: User already a member of `"$UserCompany Company`"."
+			$errorMessage6.ForeColor = "Red"
+			$errorMessage6.Text = "[6/10] WARNING: User already a member of `"$UserCompany Company`"."
 			"" >> $log
 			"6. WARNING: User already a member of `"$UserCompany Company`"." >> $log
 
 		} else {
 
-			$ErrorMsg7.Text = "[6/10] Adding user to `"$UserCompany Company`"."
+			$errorMessage6.Text = "[6/10] Adding user to `"$UserCompany Company`"."
 			Add-DistributionGroupMember "$UserCompany Company" -member $UserAlias -domaincontroller $DC -BypassSecurityGroupManagerCheck
 			"" >> $log
 			"6. Adding user to `"$UserCompany Company`"." >> $log
@@ -1643,8 +1643,8 @@ function CreateMailbox {
 				$UserDG = $GroupName_DG[$i]
 				if (IsMember $UserDG $UserAlias) {
 
-					$ErrorMsg17.ForeColor = "Red"
-					$ErrorMsg17.Text = "[7/10] WARNING: User already a member of distribution group `"$UserDG`"."
+					$errorMessage16.ForeColor = "Red"
+					$errorMessage16.Text = "[7/10] WARNING: User already a member of distribution group `"$UserDG`"."
 					"" >> $log
 					"7. WARNING: User already a member of distribution group `"$UserDG`"." >> $log
 					cotinue
@@ -1652,7 +1652,7 @@ function CreateMailbox {
 				} else {
 
 					$SuccessDG += $UserDG
-					$ErrorMsg8.Text = "[7/10] Adding user to distribution group `"$SuccessDG`"."
+					$errorMessage7.Text = "[7/10] Adding user to distribution group `"$SuccessDG`"."
 					Add-DistributionGroupMember "$UserDG" -member $UserAlias -domaincontroller $DC -BypassSecurityGroupManagerCheck
 					"" >> $log
 					"7. Adding user to distribution group `"$UserDG`"." >> $log
@@ -1664,7 +1664,7 @@ function CreateMailbox {
 
 		} else {
 
-			$ErrorMsg8.Text = "[7/10] Skipped...no distribution group specified."
+			$errorMessage7.Text = "[7/10] Skipped...no distribution group specified."
 			"" >> $log
 			"7. Skipped...no distribution group specified." >> $log
 
@@ -1674,8 +1674,8 @@ function CreateMailbox {
 		Start-Sleep -s 1
 
 		# 8 of 10, updating Address List
-		$ErrorMsg9.ForeColor = "Green"
-		$ErrorMsg9.Text = "[8/10] Updating address list `"$UserCompany Address List`"."
+		$errorMessage8.ForeColor = "Green"
+		$errorMessage8.Text = "[8/10] Updating address list `"$UserCompany Address List`"."
 		$Form2.Refresh()
 		Update-AddressList "$UserCompany Address List" -domaincontroller $DC
 		"" >> $log
@@ -1683,7 +1683,7 @@ function CreateMailbox {
 		Start-Sleep -s 1
 
 		# 9 of 10, updating Offline Address Book
-		$ErrorMsg10.Text = "[9/10] Updating offline address book `"$UserCompany OAB`"."
+		$errorMessage9.Text = "[9/10] Updating offline address book `"$UserCompany OAB`"."
 		$Form2.Refresh()
 		Update-OfflineAddressBook "$UserCompany OAB" -domaincontroller $DC
 		"" >> $log
@@ -1716,7 +1716,7 @@ function CreateMailbox {
 
 		#############################
 
-		$ErrorMsg11.Text = "[10/10] Setting msExchQueryBaseDN attribute."
+		$errorMessage10.Text = "[10/10] Setting msExchQueryBaseDN attribute."
 		$Form2.Refresh()
 		#$user.MsExchSeachBase = "CN=$UserCompany Address List,CN=All Address Lists,CN=Address Lists Container,CN=MA Labs,CN=Microsoft Exchange,CN=Services,CN=Configuration,DC=MA Labs,DC=local"
 		"" >> $log
@@ -1726,17 +1726,17 @@ function CreateMailbox {
 		$Pass = $Password.Text
 		$emailToBranch = $EmailCheckLabel3.Text
 		Write-Host $emailToBranch
-		$OKButton2.visible = $False
-		$FinishButton2.TabIndex = 0
-		$FinishButton2.visible = $True
-		$ErrorMsg12.Text = "Mailbox `"$UserFirst $UserLast ($UserAlias)`" created sucessfully. Check log for errors."
+		$OKButton.visible = $False
+		$finishButton.TabIndex = 0
+		$finishButton.visible = $True
+		$errorMessage11.Text = "Mailbox `"$UserFirst $UserLast ($UserAlias)`" created sucessfully. Check log for errors."
 		"" >> $log
 		"Mailbox `"$UserFirst $UserLast ($UserAlias)`" created sucessfully." >> $log
 		Start-Sleep -s 1
 
 	} else {
 
-		$ErrorMsg12.Text = "ERROR: Unable to create mailbox `"$UserFirst $UserLast ($UserAlias)`". Check the command syntax."
+		$errorMessage11.Text = "ERROR: Unable to create mailbox `"$UserFirst $UserLast ($UserAlias)`". Check the command syntax."
 		"" >> $log
 		"ERROR: Unable to create mailbox `"$UserFirst $UserLast ($UserAlias)`". Check the command syntax." >> $log
 		Start-Sleep -s 1
@@ -1957,8 +1957,8 @@ function CreateContact {
 		Start-Sleep -s 1
 
 		# 6 of 7, updating Address List
-		$ErrorMsg7.ForeColor = "Green"
-		$ErrorMsg7.Text = "[6/7] Updating address list `"$UserCompany Address List`"."
+		$errorMessage6.ForeColor = "Green"
+		$errorMessage6.Text = "[6/7] Updating address list `"$UserCompany Address List`"."
 		$Form6.Refresh()
 		Update-AddressList "$UserCompany Address List" -domaincontroller $DC
 		"" >> $log
@@ -2031,21 +2031,21 @@ function DisableUser {
 	}
 
 	# Hide buttons
-	$BackButton2.Enabled = $False
-	$CancelButton2.Enabled = $False
-	$OKButton2.Enabled = $False
+	$backButton.Enabled = $False
+	$cancelButton.Enabled = $False
+	$OKButton.Enabled = $False
 
 	# 1 of 8, resetting custom attributes
 	if ($mailenabled) {
 
-		$ErrorMsg2.Text = "[1/8] Resetting custom attributes and hidden from Exchange Address lists."
+		$errorMessage1.Text = "[1/8] Resetting custom attributes and hidden from Exchange Address lists."
 		$Form2.Refresh()
 		Set-Mailbox $userAlias -CustomAttribute1 "" -CustomAttribute2 "" -CustomAttribute3 "" -HiddenFromAddressListsEnabled $True -domaincontroller $DC
 		"1. Resetting custom attributes and hidden from Exchange Address lists." > $log
 
 	} else {
 
-		$ErrorMsg2.Text = "[1/8] Skipped."
+		$errorMessage1.Text = "[1/8] Skipped."
 		$Form2.Refresh()
 		"1. Skipped resetting custom attributes and hidden from Exchange Address lists." > $log
 
@@ -2056,7 +2056,7 @@ function DisableUser {
 	# 2 of 8, disabling mailbox features
 	if ($mailenabled) {
 
-		$ErrorMsg3.Text = "[2/8] Disabling mailbox features."
+		$errorMessage2.Text = "[2/8] Disabling mailbox features."
 		$Form2.Refresh()
 		Set-CASMailbox -Identity $UserAlias -ActiveSyncEnabled $False -OWAEnabled $False -MAPIBlockOutlookRpcHttp $True -Confirm:$False -domaincontroller $DC
 		"" >> $log
@@ -2064,7 +2064,7 @@ function DisableUser {
 
 	} else {
 
-		$ErrorMsg3.Text = "[2/8] Skipped."
+		$errorMessage2.Text = "[2/8] Skipped."
 		$Form2.Refresh()
 		"" >> $log
 		"2. Skipped disabling mailbox features." >> $log
@@ -2074,7 +2074,7 @@ function DisableUser {
 	Start-Sleep -s 1
 
 	# 3 of 8, removing group membership
-	$ErrorMsg4.Text = "[3/8] Removing group membership."
+	$errorMessage3.Text = "[3/8] Removing group membership."
 	$Form2.Refresh()
 	#To Bind:
 	$userdn = $tmpUser.distinguishedname
@@ -2092,7 +2092,7 @@ function DisableUser {
 	# 4 of 8, updating Address List
 	if ($mailenabled) {
 
-		$ErrorMsg5.Text = "[4/8] Updating address list `"$Company Address List`"."
+		$errorMessage4.Text = "[4/8] Updating address list `"$Company Address List`"."
 		$Form2.Refresh()
 		Update-AddressList "$company Address List" -domaincontroller $DC
 		"" >> $log
@@ -2100,7 +2100,7 @@ function DisableUser {
 
 	} else {
 
-		$ErrorMsg5.Text = "[4/8] Skipped."
+		$errorMessage4.Text = "[4/8] Skipped."
 		$Form2.Refresh()
 		"" >> $log
 		"4. Skipped updating address list `"$Company Address List`"." >> $log
@@ -2111,7 +2111,7 @@ function DisableUser {
 	# 5 of 8, updating Offline Address Book
 	if ($mailenabled) {
 
-		$ErrorMsg6.Text = "[5/8] Updating offline address book `"$company OAB`"."
+		$errorMessage5.Text = "[5/8] Updating offline address book `"$company OAB`"."
 		$Form2.Refresh()
 		Update-OfflineAddressBook "$company OAB" -domaincontroller $DC
 		"" >> $log
@@ -2119,7 +2119,7 @@ function DisableUser {
 
 	} else {
 
-		$ErrorMsg6.Text = "[5/8] Skipped."
+		$errorMessage5.Text = "[5/8] Skipped."
 		$Form2.Refresh()
 		"" >> $log
 		"5. Skipped updating offline address book `"$company OAB`"." >> $log
@@ -2128,7 +2128,7 @@ function DisableUser {
 	Start-Sleep -s 1
 
 	# 6 of 8, moving user
-	$ErrorMsg7.Text = "[6/8] Moving user to `"/Disabled/$company/Users`" OU."
+	$errorMessage6.Text = "[6/8] Moving user to `"/Disabled/$company/Users`" OU."
 	$Form2.Refresh()
 	$to = [adsi]"LDAP://OU=Users,OU=$company,OU=Disabled,DC=malabs,DC=com"
 	$user.psbase.MoveTo($to)
@@ -2145,7 +2145,7 @@ function DisableUser {
 
 			if (@( Get-ChildItem $userhome -Name).Count -eq 0) {
 
-				$ErrorMsg8.Text = "[7/8] Removing user home directory `"$userhome`"."
+				$errorMessage7.Text = "[7/8] Removing user home directory `"$userhome`"."
 				$Form2.Refresh()
 				Remove-Item $userhome -Force -Recurse
 				"" >> $log
@@ -2153,7 +2153,7 @@ function DisableUser {
 
 			} else {
 
-				$ErrorMsg8.Text = "[7/8] Archiving user home directory `"$userhome`"."
+				$errorMessage7.Text = "[7/8] Archiving user home directory `"$userhome`"."
 				$Form2.Refresh()
 				Move-Item $userhome $archive
 				"" >> $log
@@ -2165,7 +2165,7 @@ function DisableUser {
 
 	} else {
 
-		$ErrorMsg8.Text = "[7/8] Skipped."
+		$errorMessage7.Text = "[7/8] Skipped."
 		$Form2.Refresh()
 		"" >> $logarchive
 		"7. Skipped archiving user home directory." >> $log
@@ -2174,24 +2174,24 @@ function DisableUser {
 	Start-Sleep -s 1
 
 	# 8 of 8, disabling user
-	$ErrorMsg9.Text = "[8/8] Disabling user."
+	$errorMessage8.Text = "[8/8] Disabling user."
 	$Form2.Refresh()
 	$user.psbase.invokeset("AccountDisabled", "True")
 	$user.setinfo()
 	if ($user.psbase.invokeget("AccountDisabled") -eq $False) {
 
-		$ErrorMsg9.Text = "ERROR: Unable to disable user `"$UserFirst $UserLast ($UserAlias)`". Check the command syntax."
+		$errorMessage8.Text = "ERROR: Unable to disable user `"$UserFirst $UserLast ($UserAlias)`". Check the command syntax."
 
 	}
 	"" >> $log
 	"8. Disabling user." >> $log
 	Start-Sleep -s 1
 
-	$OKButton2.visible = $False
-	$FinishButton2.TabIndex = 0
-	$FinishButton2.TabStop = $True
-	$FinishButton2.visible = $True
-	$ErrorMsg10.Text = "User `"$UserFirst $UserLast ($UserAlias)`" disabled sucessfully. Check log for errors."
+	$OKButton.visible = $False
+	$finishButton.TabIndex = 0
+	$finishButton.TabStop = $True
+	$finishButton.visible = $True
+	$errorMessage9.Text = "User `"$UserFirst $UserLast ($UserAlias)`" disabled sucessfully. Check log for errors."
 	"" >> $log
 	"User `"$userFirst $UserLast ($UserAlias)`" disabled sucessfully." >> $log
 
@@ -2608,650 +2608,6 @@ function Add-Group {
 }
 
 ################################################################################
-# Form 2
-################################################################################
-function ShowForm2 {
-
-	$newMailBoxForm.visible = $False
-
-	$Form2 = New-Object System.Windows.Forms.Form
-	$Form2.Text = $title
-	$Form2.Size = New-Object System.Drawing.Size (900, 710)
-	$Form2.StartPosition = "CenterScreen"
-	$Form2.KeyPreview = $True
-	$Form2.Add_KeyDown({
-
-		if ($_.KeyCode -eq "Enter") {
-
-			if ($OKButton2.visible) {
-
-				if ($disable) {
-
-					$logfile = $UserAlias + "-disabled.log"
-					DisableUser
-
-				} else {
-
-					$logfile = $UserAlias + "-created.log"
-					CreateMailbox
-
-				}
-
-			}
-
-			if ($FinishButton2.visible) {
-
-				$newMailBoxForm.close()
-				$Form2.close()
-				$launchForm.visible = $True
-
-			}
-
-		}
-
-	})
-
-	$Form2.Add_KeyDown({
-
-		if ($_.KeyCode -eq "Escape") {
-
-			$launchForm.close();
-			$newMailBoxForm.close();
-			$Form2.close()
-		
-		}
-
-	})
-
-	if ($UserExtension) {
-
-		$UserExtension = "x" + $UserExtension
-
-	}
-
-	$OKButton2 = New-Object System.Windows.Forms.Button
-	$OKButton2.Location = New-Object System.Drawing.Size (680, 500)
-	$OKButton2.Size = New-Object System.Drawing.Size (75, 23)
-	$OKButton2.Text = "OK"
-	$OKButton2.TabIndex = 2
-	$OKButton2.Add_Click({
-
-		if ($disable) {
-
-			$logfile = $UserAlias + "-disabled.log"
-			DisableUser
-
-		} else {
-
-			$logfile = $UserAlias + "-created.log"
-			$CheckIT = $ITemailcheck.Checked
-			$CheckHR = $HRemailcheck.Checked
-			$CheckBranch = $Branchemailcheck.Checked
-			CreateMailbox
-
-			Start-Sleep -s 1
-
-			if ($GroupName_DFS.Length -ne 0 -or $GroupName_Vasto.Length -ne 0 -or $GroupName_Dept.Length -ne 0 -or $GroupName_List.Length -ne 0) {
-
-				Add-Group
-
-			}
-
-		}
-
-	})
-
-	$Form2.Controls.Add($OKButton2)
-
-	$CancelButton2 = New-Object System.Windows.Forms.Button
-	$CancelButton2.Location = New-Object System.Drawing.Size (765, 500)
-	$CancelButton2.Size = New-Object System.Drawing.Size (75, 23)
-	$CancelButton2.Text = "Cancel"
-	$CancelButton2.TabIndex = 3
-	$CancelButton2.Add_Click({
-
-		$launchForm.close();
-		$newMailBoxForm.close();
-		$Form2.close()
-
-	})
-	$Form2.Controls.Add($CancelButton2)
-
-	$BackButton2 = New-Object System.Windows.Forms.Button
-	$BackButton2.Location = New-Object System.Drawing.Size (605, 500)
-	$BackButton2.Size = New-Object System.Drawing.Size (75, 23)
-	$BackButton2.Text = "< Back"
-	$BackButton2.TabIndex = 4
-	$BackButton2.Add_Click({
-
-		$Form2.visible = $False; 
-
-		if ($disable) {
-
-			$launchForm.visible = $True
-
-		} else {
-
-			$newMailBoxForm.visible = $True
-
-		}
-
-	})
-	$Form2.Controls.Add($BackButton2)
-
-	$FinishButton2 = New-Object System.Windows.Forms.Button
-	$FinishButton2.Location = New-Object System.Drawing.Size (680, 500)
-	$FinishButton2.Size = New-Object System.Drawing.Size (75, 23)
-	$FinishButton2.Text = "Finish"
-	$FinishButton2.TabIndex = 1
-	$FinishButton2.visible = $False
-	$FinishButton2.Add_Click({
-
-			$Form2.Refresh()
-			Start-Sleep -s 1
-			$newMailBoxForm.close();
-			$Form2.close();
-			$launchForm.visible = $True
-
-	})
-	$Form2.Controls.Add($FinishButton2)
-
-	# Job Status Label
-	$JobStatusLabel = New-Object System.Windows.Forms.Label
-	$JobStatusLabel.Location = New-Object System.Drawing.Size (420, 40)
-	$JobStatusLabel.Size = New-Object System.Drawing.Size (120, 20)
-	$JobStatusLabel.Text = "Job Status:"
-	$JobStatusLabel.Font = New-Object System.Drawing.Font ("Arial", 8, ([System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold)), [System.Drawing.GraphicsUnit]::Point, ([System.Byte](0)))
-	$Form2.Controls.Add($JobStatusLabel)
-
-	# Error Message Box
-	$ErrorMsg2 = New-Object System.Windows.Forms.Label
-	$ErrorMsg2.Location = New-Object System.Drawing.Size (420, 70)
-	$ErrorMsg2.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg2.Text = $null
-	$ErrorMsg2.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg2)
-
-	$ErrorMsg3 = New-Object System.Windows.Forms.Label
-	$ErrorMsg3.Location = New-Object System.Drawing.Size (420, 90)
-	$ErrorMsg3.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg3.Text = $null
-	$ErrorMsg3.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg3)
-
-	$ErrorMsg4 = New-Object System.Windows.Forms.Label
-	$ErrorMsg4.Location = New-Object System.Drawing.Size (420, 110)
-	$ErrorMsg4.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg4.Text = $null
-	$ErrorMsg4.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg4)
-
-	$ErrorMsg5 = New-Object System.Windows.Forms.Label
-	$ErrorMsg5.Location = New-Object System.Drawing.Size (420, 130)
-	$ErrorMsg5.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg5.Text = $null
-	$ErrorMsg5.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg5)
-
-	$ErrorMsg6 = New-Object System.Windows.Forms.Label
-	$ErrorMsg6.Location = New-Object System.Drawing.Size (420, 150)
-	$ErrorMsg6.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg6.Text = $null
-	$ErrorMsg6.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg6)
-
-	$ErrorMsg7 = New-Object System.Windows.Forms.Label
-	$ErrorMsg7.Location = New-Object System.Drawing.Size (420, 170)
-	$ErrorMsg7.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg7.Text = $null
-	$ErrorMsg7.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg7)
-
-	$ErrorMsg8 = New-Object System.Windows.Forms.Label
-	$ErrorMsg8.Location = New-Object System.Drawing.Size (420, 190)
-	$ErrorMsg8.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg8.Text = $null
-	$ErrorMsg8.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg8)
-
-	$ErrorMsg9 = New-Object System.Windows.Forms.Label
-	$ErrorMsg9.Location = New-Object System.Drawing.Size (420, 210)
-	$ErrorMsg9.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg9.Text = $null
-	$ErrorMsg9.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg9)
-
-	$ErrorMsg10 = New-Object System.Windows.Forms.Label
-	$ErrorMsg10.Location = New-Object System.Drawing.Size (420, 230)
-	$ErrorMsg10.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg10.Text = $null
-	$ErrorMsg10.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg10)
-
-	$ErrorMsg11 = New-Object System.Windows.Forms.Label
-	$ErrorMsg11.Location = New-Object System.Drawing.Size (420, 250)
-	$ErrorMsg11.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg11.Text = $null
-	$ErrorMsg11.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg11)
-
-	$ErrorMsg12 = New-Object System.Windows.Forms.Label
-	$ErrorMsg12.Location = New-Object System.Drawing.Size (420, 270)
-	$ErrorMsg12.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg12.Text = $null
-	$ErrorMsg12.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg12)
-
-	$ErrorMsg13 = New-Object System.Windows.Forms.Label
-	$ErrorMsg13.Location = New-Object System.Drawing.Size (420, 290)
-	$ErrorMsg13.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg13.Text = $null
-	$ErrorMsg13.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg13)
-
-	$ErrorMsg14 = New-Object System.Windows.Forms.Label
-	$ErrorMsg14.Location = New-Object System.Drawing.Size (420, 310)
-	$ErrorMsg14.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg14.Text = $null
-	$ErrorMsg14.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg14)
-
-	$ErrorMsg15 = New-Object System.Windows.Forms.Label
-	$ErrorMsg15.Location = New-Object System.Drawing.Size (420, 330)
-	$ErrorMsg15.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg15.Text = $null
-	$ErrorMsg15.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg15)
-
-	$ErrorMsg16 = New-Object System.Windows.Forms.Label
-	$ErrorMsg16.Location = New-Object System.Drawing.Size (420, 350)
-	$ErrorMsg16.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg16.Text = $null
-	$ErrorMsg16.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg16)
-
-	$ErrorMsg17 = New-Object System.Windows.Forms.Label
-	$ErrorMsg17.Location = New-Object System.Drawing.Size (420, 370)
-	$ErrorMsg17.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg17.Text = $null
-	$ErrorMsg17.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg17)
-
-	$ErrorMsg18 = New-Object System.Windows.Forms.Label
-	$ErrorMsg18.Location = New-Object System.Drawing.Size (420, 390)
-	$ErrorMsg18.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg18.Text = $null
-	$ErrorMsg18.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg18)
-
-	$ErrorMsg19 = New-Object System.Windows.Forms.Label
-	$ErrorMsg19.Location = New-Object System.Drawing.Size (420, 410)
-	$ErrorMsg19.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg19.Text = $null
-	$ErrorMsg19.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg19)
-
-	$ErrorMsg20 = New-Object System.Windows.Forms.Label
-	$ErrorMsg20.Location = New-Object System.Drawing.Size (420, 430)
-	$ErrorMsg20.Size = New-Object System.Drawing.Size (500, 20)
-	$ErrorMsg20.Text = $null
-	$ErrorMsg20.ForeColor = "Green"
-	$Form2.Controls.Add($ErrorMsg20)
-
-	$TitleLabel = New-Object System.Windows.Forms.Label
-	$TitleLabel.Location = New-Object System.Drawing.Size (20, 40)
-	$TitleLabel.Size = New-Object System.Drawing.Size (500, 20)
-	$TitleLabel.Text = "Click OK to " + $title.ToLower() + "."
-	$TitleLabel.Font = New-Object System.Drawing.Font ("Arial", 8, ([System.Drawing.FontStyle]([System.Drawing.FontStyle]::Bold)), [System.Drawing.GraphicsUnit]::Point, ([System.Byte](0)))
-	$Form2.Controls.Add($TitleLabel)
-
-	# OU Label
-	$OULabel = New-Object System.Windows.Forms.Label
-	$OULabel.Location = New-Object System.Drawing.Size (20, 70)
-	$OULabel.Size = New-Object System.Drawing.Size (120, 20)
-	$OULabel.Text = "Organizational Unit:"
-	$Form2.Controls.Add($OULabel)
-
-	$OULabel = New-Object System.Windows.Forms.Label
-	$OULabel.Location = New-Object System.Drawing.Size (150, 70)
-	$OULabel.Size = New-Object System.Drawing.Size (350, 20)
-	$OULabel.Text = $UserOU
-	$Form2.Controls.Add($OULabel)
-
-	# Name Label
-	$NameLabel = New-Object System.Windows.Forms.Label
-	$NameLabel.Location = New-Object System.Drawing.Size (20, 100)
-	$NameLabel.Size = New-Object System.Drawing.Size (120, 20)
-	$NameLabel.Text = "Name:"
-	$Form2.Controls.Add($NameLabel)
-
-	$NameLabel = New-Object System.Windows.Forms.Label
-	$NameLabel.Location = New-Object System.Drawing.Size (150, 100)
-	$NameLabel.Size = New-Object System.Drawing.Size (350, 20)
-	$NameLabel.Font = New-Object System.Drawing.Font ("ArialNarrow", 8)
-	$NameLabel.Text = "$UserFirst $UserLast"
-	$Form2.Controls.Add($NameLabel)
-
-	# User Logon Name Label
-	$LogonLabel = New-Object System.Windows.Forms.Label
-	$LogonLabel.Location = New-Object System.Drawing.Size (20,130)
-	$LogonLabel.Size = New-Object System.Drawing.Size (120,20)
-	$LogonLabel.Font = New-Object System.Drawing.Font ("ArialNarrow",8)
-	$LogonLabel.Text = "User Logon Name:"
-	$Form2.Controls.Add($LogonLabel)
-
-	$LogonLabel = New-Object System.Windows.Forms.Label
-	$LogonLabel.Location = New-Object System.Drawing.Size (150,130)
-	$LogonLabel.Size = New-Object System.Drawing.Size (350,20)
-	$LogonLabel.Text = "$UserAlias$UserDomain"
-	$Form2.Controls.Add($LogonLabel)
-
-	# Password Label
-	$PasswordLabel = New-Object System.Windows.Forms.Label
-	$PasswordLabel.Location = New-Object System.Drawing.Size (20,160)
-	$PasswordLabel.Size = New-Object System.Drawing.Size (120,20)
-	$PasswordLabel.Text = "Password:"
-	$Form2.Controls.Add($PasswordLabel)
-
-	$PasswordLabel = New-Object System.Windows.Forms.Label
-	$PasswordLabel.Location = New-Object System.Drawing.Size (150,160)
-	$PasswordLabel.Size = New-Object System.Drawing.Size (200,20)
-	$PasswordLabel.Text = "$UserPassword"
-	$Form2.Controls.Add($PasswordLabel)
-
-	# Server Label
-	$ServerLabel = New-Object System.Windows.Forms.Label
-	$ServerLabel.Location = New-Object System.Drawing.Size (20,190)
-	$ServerLabel.Size = New-Object System.Drawing.Size (120,20)
-	$ServerLabel.Text = "Server / Database:"
-	$Form2.Controls.Add($ServerLabel)
-
-	$ServerLabel = New-Object System.Windows.Forms.Label
-	$ServerLabel.Location = New-Object System.Drawing.Size (150,190)
-	$ServerLabel.Size = New-Object System.Drawing.Size (350,20)
-	if ($MailboxServer -and $Database) { 
-
-		$ServerLabel.Text = "$MailboxServer/$Database"
-
-	}
-	$Form2.Controls.Add($ServerLabel)
-
-	# Email Label
-	$EmailLabel = New-Object System.Windows.Forms.Label
-	$EmailLabel.Location = New-Object System.Drawing.Size (20,220)
-	$EmailLabel.Size = New-Object System.Drawing.Size (130,20)
-	$EmailLabel.Text = "E-mail:"
-	$Form2.Controls.Add($EmailLabel)
-
-	$EmailLabel = New-Object System.Windows.Forms.Label
-	$EmailLabel.Location = New-Object System.Drawing.Size (150,220)
-	$EmailLabel.Size = New-Object System.Drawing.Size (350,20)
-	$EmailLabel.Font = New-Object System.Drawing.Font ("ArialNarrow",8)
-	$EmailLabel.Text = "$UserEmail$UserEmailDomain"
-	$Form2.Controls.Add($EmailLabel)
-
-	# Distribution Group Label
-	$DGLabel = New-Object System.Windows.Forms.Label
-	$DGLabel.Location = New-Object System.Drawing.Size (20,250)
-	$DGLabel.Size = New-Object System.Drawing.Size (120,20)
-	$DGLabel.Text = "Distribution Group:"
-	$Form2.Controls.Add($DGLabel)
-
-	$DGLabel = New-Object System.Windows.Forms.Label
-	$DGLabel.Location = New-Object System.Drawing.Size (150,250)
-	$DGLabel.Size = New-Object System.Drawing.Size (350,20)
-	$DGLabel.Text = "$GroupName_DG"
-	$Form2.Controls.Add($DGLabel)
-
-	# Office Label
-	$OfficeLabel = New-Object System.Windows.Forms.Label
-	$OfficeLabel.Location = New-Object System.Drawing.Size (20,280)
-	$OfficeLabel.Size = New-Object System.Drawing.Size (120,20)
-	$OfficeLabel.Text = "Office:"
-	$Form2.Controls.Add($OfficeLabel)
-
-	$OfficeLabel = New-Object System.Windows.Forms.Label
-	$OfficeLabel.Location = New-Object System.Drawing.Size (150,280)
-	$OfficeLabel.Size = New-Object System.Drawing.Size (350,20)
-	$OfficeLabel.Text = "$UserOffice"
-	$Form2.Controls.Add($OfficeLabel)
-
-	# Phone Label
-	$PhoneLabel = New-Object System.Windows.Forms.Label
-	$PhoneLabel.Location = New-Object System.Drawing.Size (20,310)
-	$PhoneLabel.Size = New-Object System.Drawing.Size (120,20)
-	$PhoneLabel.Text = "Phone:"
-	$Form2.Controls.Add($PhoneLabel)
-
-	# Phone Extension
-	$PhoneLabel = New-Object System.Windows.Forms.Label
-	$PhoneLabel.Location = New-Object System.Drawing.Size (150,310)
-	$PhoneLabel.Size = New-Object System.Drawing.Size (350,20)
-	$PhoneLabel.Text = "$UserPhone $UserExtension".Trim()
-	$Form2.Controls.Add($PhoneLabel)
-
-	# Group Membership DFS
-	$DFSLabel = New-Object System.Windows.Forms.Label
-	$DFSLabel.Location = New-Object System.Drawing.Size (20,340)
-	$DFSLabel.Size = New-Object System.Drawing.Size (120,20)
-	$DFSLabel.Text = "DFS Group:"
-	$Form2.Controls.Add($DFSLabel)
-
-	# Group Membership DFS
-	$DFSLabel = New-Object System.Windows.Forms.Label
-	$DFSLabel.Location = New-Object System.Drawing.Size (150,340)
-	$DFSLabel.Size = New-Object System.Drawing.Size (350,20)
-	$DFSLabel.Text = "$GroupName_DFS".Trim()
-	$Form2.Controls.Add($DFSLabel)
-
-	# Group Membership Vasto
-	$DFSLabel = New-Object System.Windows.Forms.Label
-	$DFSLabel.Location = New-Object System.Drawing.Size (20,370)
-	$DFSLabel.Size = New-Object System.Drawing.Size (120,20)
-	$DFSLabel.Text = "Vasto Group:"
-	$Form2.Controls.Add($DFSLabel)
-
-	# Group Membership Vasto
-	$DFSLabel = New-Object System.Windows.Forms.Label
-	$DFSLabel.Location = New-Object System.Drawing.Size (150,370)
-	$DFSLabel.Size = New-Object System.Drawing.Size (350,20)
-	$DFSLabel.Text = "$GroupName_Vasto".Trim()
-	$Form2.Controls.Add($DFSLabel)
-
-	# Group Membership Department
-	$DeptLabel = New-Object System.Windows.Forms.Label
-	$DeptLabel.Location = New-Object System.Drawing.Size (20,400)
-	$DeptLabel.Size = New-Object System.Drawing.Size (130,20)
-	$DeptLabel.Text = "Websense Department:"
-	$Form2.Controls.Add($DeptLabel)
-
-	# Group Membership Department
-	$DeptLabel = New-Object System.Windows.Forms.Label
-	$DeptLabel.Location = New-Object System.Drawing.Size (150,400)
-	$DeptLabel.Size = New-Object System.Drawing.Size (550,20)
-	$DeptLabel.Text = "$GroupName_Dept".Trim()
-	$Form2.Controls.Add($DeptLabel)
-
-	# Group Membership Vasto
-	$WebsenseLabel = New-Object System.Windows.Forms.Label
-	$WebsenseLabel.Location = New-Object System.Drawing.Size (20,430)
-	$WebsenseLabel.Size = New-Object System.Drawing.Size (130,20)
-	$WebsenseLabel.Text = "Websense List:"
-	$Form2.Controls.Add($WebsenseLabel)
-
-	# Group Membership Vasto
-	$WebsenseLabel = New-Object System.Windows.Forms.Label
-	$WebsenseLabel.Location = New-Object System.Drawing.Size (150,430)
-	$WebsenseLabel.Size = New-Object System.Drawing.Size (350,20)
-	$WebsenseLabel.Text = "$GroupName_List".Trim()
-	$Form2.Controls.Add($WebsenseLabel)
-
-	# Mailbox Features Label
-	#$FeaturesLabel = New-Object System.Windows.Forms.Label
-	#$FeaturesLabel.Location = New-Object System.Drawing.Size(20,340)
-	#$FeaturesLabel.Size = New-Object System.Drawing.Size(120,20) 
-	#$FeaturesLabel.Text = "Mailbox Features:"
-	#$Form2.Controls.Add($FeaturesLabel)
-
-	#$FeaturesLabel = New-Object System.Windows.Forms.Label
-	#$FeaturesLabel.Location = New-Object System.Drawing.Size(150,340)
-	#$FeaturesLabel.Size = New-Object System.Drawing.Size(350,20)
-	#if ($UserOutlookAnywhere) {
-	#	$FeaturesLabel.Text = "Outlook Anywhere: Enabled"
-	#} else {
-	#	$FeaturesLabel.Text = "Outlook Anywhere: Disabled"
-	#}
-	#$Form2.Controls.Add($FeaturesLabel)
-
-	#$FeaturesLabel = New-Object System.Windows.Forms.Label
-	#$FeaturesLabel.Location = New-Object System.Drawing.Size(150,360)
-	#$FeaturesLabel.Size = New-Object System.Drawing.Size(350,20)
-	#if ($UserOWA) {
-	#	$FeaturesLabel.Text = "Outlook Web Access: Enabled"
-	#} else {
-	#	$FeaturesLabel.Text = "Outlook Web Access: Disabled"
-	#}
-	#$Form2.Controls.Add($FeaturesLabel)
-
-	#$FeaturesLabel = New-Object System.Windows.Forms.Label
-	#$FeaturesLabel.Location = New-Object System.Drawing.Size(150,380)
-	#$FeaturesLabel.Size = New-Object System.Drawing.Size(350,20)
-	#if ($UserActiveSync) {
-	#	$FeaturesLabel.Text = "Exchange ActiveSync: Enabled"
-	#} else {
-	#	$FeaturesLabel.Text = "Exchange ActiveSync: Disabled"
-	#}
-	#$Form2.Controls.Add($FeaturesLabel)
-
-	# The check function Label
-	$CheckLabel1 = New-Object System.Windows.Forms.Label
-	$CheckLabel1.Location = New-Object System.Drawing.Size (20,473)
-	$CheckLabel1.Size = New-Object System.Drawing.Size (60,20)
-	$CheckLabel1.Text = "Email To:"
-	$Form2.Controls.Add($CheckLabel1)
-
-	# EmailToIT Label
-	$EmailCheckLabel1 = New-Object System.Windows.Forms.Label
-	$EmailCheckLabel1.Location = New-Object System.Drawing.Size (95,473)
-	$EmailCheckLabel1.Size = New-Object System.Drawing.Size (50,20)
-	$EmailCheckLabel1.Text = "IT Admin"
-	$Form2.Controls.Add($EmailCheckLabel1)
-
-	# IT Email Check Box
-	$ITemailcheck = New-Object System.Windows.Forms.CheckBox
-	$ITemailcheck.Location = New-Object System.Drawing.Size (80,470)
-	$ITemailcheck.Size = New-Object System.Drawing.Size (40,20)
-	$ITemailcheck.Checked = $True
-	$ITemailcheck.TabIndex = 14
-	$ITemailcheck.Enabled = $True
-	$Form2.Controls.Add($ITemailcheck)
-
-	# EmailToHR Label
-	$EmailCheckLabel2 = New-Object System.Windows.Forms.Label
-	$EmailCheckLabel2.Location = New-Object System.Drawing.Size (165,473)
-	$EmailCheckLabel2.Size = New-Object System.Drawing.Size (30,20)
-	$EmailCheckLabel2.Text = "HR"
-	$Form2.Controls.Add($EmailCheckLabel2)
-
-	# HR Email Check Box
-	$HRemailcheck = New-Object System.Windows.Forms.CheckBox
-	$HRemailcheck.Location = New-Object System.Drawing.Size (150,470)
-	$HRemailcheck.Size = New-Object System.Drawing.Size (40,20)
-	$HRemailcheck.TabIndex = 14
-	$Form2.Controls.Add($HRemailcheck)
-
-	if ($UserAlias -like "*w_*") {
-
-		$EmailCheckLabel2.Enabled = $True
-		$HRemailcheck.Checked = $True
-		$HRemailcheck.Enabled = $True
-
-	} else {
-
-		$EmailCheckLabel2.Enabled = $False
-		$HRemailcheck.Checked = $False
-		$HRemailcheck.Enabled = $False
-
-	}
-
-	$Branchemailcheck = New-Object System.Windows.Forms.CheckBox
-	$Branchemailcheck.Location = New-Object System.Drawing.Size (80,495)
-	$Branchemailcheck.Size = New-Object System.Drawing.Size (15,20)
-	$Branchemailcheck.Enabled = $True
-	$Form2.Controls.Add($Branchemailcheck)
-
-	switch ($UserAlias) {
-
-		{ ($_ -like "*w_*") } { 
-
-			$emailToBranch = "admin.wh@newbiiz.com"
-			$Branchemailcheck.Checked = $True
-
-		}
-		
-		{ ($_ -like "*c_*") } { 
-
-			$emailToBranch = "Brian.Li@malabs.com"
-			$Branchemailcheck.Checked = $True
-
-		}
-
-		{ ($_ -like "*g_*") } { 
-		
-			$emailToBranch = "Christina.Tay@malabs.com"
-			$Branchemailcheck.Checked = $True
-
-		}
-
-		{ ($_ -like "*i_*") } { 
-
-			$emailToBranch = "Keith.Yarbrough@malabs.com"
-			$Branchemailcheck.Checked = $True
-
-		}
-
-		{ ($_ -like "*n_*") } {
-
-			$emailToBranch = "davidc@malabs.com"
-			$Branchemailcheck.Checked = $True
-
-		}
-
-		{ ($_ -like "*m_*") } { 
-
-			$emailToBranch = "fari@malabs.com"
-			$Branchemailcheck.Checked = $True
-
-		}
-
-		{ ($_ -notlike '*_*') } {
-
-			$Branchemailcheck.Enabled = $False
-			$Branchemailcheck.Checked = $False
-
-		}
-
-	}
-
-	# EmailToWuHan Label
-	$EmailCheckLabel3 = New-Object System.Windows.Forms.Label
-	$EmailCheckLabel3.Location = New-Object System.Drawing.Size (95,498)
-	$EmailCheckLabel3.Size = New-Object System.Drawing.Size (220,20)
-	$EmailCheckLabel3.Text = "$emailToBranch"
-	$EmailCheckLabel3.Enabled = $True
-	$Form2.Controls.Add($EmailCheckLabel3)
-
-	$Form2.Topmost = $True
-	$Form2.Add_Shown({ 
-	
-		$Form2.Activate()
-	
-	})
-	[void]$Form2.ShowDialog()
-
-}
-
-################################################################################
 # Form 3
 ################################################################################
 function ShowForm3 {
@@ -3429,7 +2785,7 @@ function ShowForm3 {
 	$OU.Location = New-Object System.Drawing.Size (150, 70)
 	$OU.Size = New-Object System.Drawing.Size (290, 20)
 	[void]$OU.Items.Add("/Users")
-	#$OUhash.Add("/Users","Users")
+	#$OUhash.Add("/Users", "Users")
 	$root = [adsi]''
 	$searcher = New-Object System.DirectoryServices.DirectorySearcher ($root)
 	$searcher.Filter = "(&(objectClass=organizationalUnit)(name=Users))"

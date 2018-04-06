@@ -23,16 +23,7 @@ function Show-MailboxForm {
 
 			 Handle-Enters
 
-		}
-
-	})
-
-	<#
-		"Escape" key behavior
-	#>
-	$newMailBoxForm.Add_KeyDown({
-
-		if ($_.KeyCode -eq "Escape") {
+		} elseif ($_.KeyCode -eq "Escape") {
 
 			$newMailBoxForm.close()
 
@@ -183,7 +174,7 @@ function Show-MailboxForm {
 		Config "Company" combo box and its behaviors
 	#>
 	$companyComboBox = Config-ComboBox -horizontalPosition 190 -verticalPosition 70 -width 90 -height 20
-	$companyComboBox.Items.AddRange("", "MA Labs", "Superbiiz", "Supertalent")
+	$companyComboBox.Items.AddRange(("", "MA Labs", "Superbiiz", "Supertalent"))
 	$companyComboBox.DropDownStyle = 2
 	$companyComboBox.Sorted = $True
 	$companyComboBox.TabIndex = 0

@@ -1,6 +1,7 @@
-<##############################
-	Launch Form
-################################>
+<################################################################################
+# Launch form
+################################################################################>
+
 
 <#
 	Show "Exchange Manager" launch panel form
@@ -10,16 +11,12 @@ function Show-launchForm {
 	<#
 		Config launch panel form and handle default press-key behaviors
 	#>
-	$launchForm = New-Object System.Windows.Forms.Form
-	$launchForm.Text = $title
-	$launchForm.Size = New-Object System.Drawing.Size (500, 610)
-	$launchForm.StartPosition = "CenterScreen"
-	$launchForm.KeyPreview = $True
+	$launchForm = Config-Form -width 500 -height 610 -text $title -startPosition "CenterScreen" -keyPreview $True
 	$launchForm.Add_KeyDown({
 
 		if ($_.KeyCode -eq "Enter") {
 
-			 Handle-Options
+			 Handle-NextButtonClick
 
 		} elseif ($_.KeyCode -eq "Escape") {
 
@@ -35,10 +32,10 @@ function Show-launchForm {
 	$nextButton = Config-Button -horizontalPosition 280 -verticalPosition 520 -width 75 -height 23 -text "Next >" -tabIndex 7
 	$nextButton.Add_Click({
 
-		 Handle-Options
+		 Handle-NextButtonClick
 
 	})
-	$launchForm.Controls.Add($NextButton)
+	$launchForm.Controls.Add($nextButton)
 
 	<#
 		Config "Cancel" button and its behaviors
@@ -144,7 +141,7 @@ function Show-launchForm {
 
 }
 
-function Handle-Options {
+function Handle-NextButtonClick {
 
 	if ($newMailboxRadioButton.Checked) {
 

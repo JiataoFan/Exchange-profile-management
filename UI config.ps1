@@ -1,9 +1,14 @@
+<################################################################################
+# UI element configuration functions library
+################################################################################>
+
+
 <#
 	Config form window
 #>
 function Config-Form {
 
-	param([int]$width, [int]$height, [string]$text, [string]$windowState, [string]$startPosition, [bool]$keyPreview)
+	param([int]$width, [int]$height, [string]$text, [string]$windowState = "Normal", [string]$startPosition = "CenterScreen", [bool]$keyPreview = $True)
 
 	$form = New-Object System.Windows.Forms.Form
 	$form.Size = New-Object System.Drawing.Size ($width, $height)
@@ -132,6 +137,9 @@ function Config-ComboBox {
 
 }
 
+<#
+	Config checked list box
+#>
 function Config-CheckedListbox {
 
 	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [bool]$checkOnClick = $False, [bool]$horizontalScrollbar = $False, $enabled = $True)
@@ -147,13 +155,17 @@ function Config-CheckedListbox {
 
 }
 
+<#
+	Config check box
+#>
 function Config-CheckBox {
 
-	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [int]$tabIndex, [bool]$enabled = $Tru
+	param([int]$horizontalPosition, [int]$verticalPosition, [int]$width, [int]$height, [bool]$checked = $False, [int]$tabIndex, [bool]$enabled = $True)
 
 	$checkBox = New-Object System.Windows.Forms.CheckBox
 	$checkBox.Location = New-Object System.Drawing.Size ($horizontalPosition, $verticalPosition)
 	$checkBox.Size = New-Object System.Drawing.Size ($width, $height)
+	$checkBox.Checked = $True
 	$checkBox.TabIndex = $tabIndex
 	$checkBox.Enabled = $enabled
 
